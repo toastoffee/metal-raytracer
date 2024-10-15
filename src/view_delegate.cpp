@@ -12,9 +12,9 @@
 
 #include "view_delegate.hpp"
 
-ViewDelegate::ViewDelegate(MTL::Device *device) {
-
-}
+ViewDelegate::ViewDelegate(MTL::Device *device) :
+        MTK::ViewDelegate(),
+        { }
 
 ViewDelegate::~ViewDelegate() {
 

@@ -16,6 +16,8 @@
 #include <Metal/Metal.hpp>
 #include <MetalKit/MetalKit.hpp>
 
+#include "renderer.hpp"
+
 class ViewDelegate : public MTK::ViewDelegate {
 public:
     ViewDelegate(MTL::Device* device);
