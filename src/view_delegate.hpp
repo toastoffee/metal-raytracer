@@ -18,6 +18,8 @@
 
 class ViewDelegate : public MTK::ViewDelegate {
 public:
+    ViewDelegate(MTL::Device* device);
+
     ~ViewDelegate() override;
 
     void drawInMTKView(MTK::View* pView) override;

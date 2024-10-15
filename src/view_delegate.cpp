@@ -12,6 +12,10 @@
 
 #include "view_delegate.hpp"
 
+ViewDelegate::ViewDelegate(MTL::Device *device) {
+
+}
+
 ViewDelegate::~ViewDelegate() {
 
 }
@@ -19,4 +23,5 @@ ViewDelegate::~ViewDelegate() {
 void ViewDelegate::drawInMTKView(MTK::View *pView) {
     ViewDelegate::drawInMTKView(pView);
 }
+
 
