@@ -13,10 +13,15 @@
 #ifndef METAL_RENDERER_SHADER_TOOL_HPP
 #define METAL_RENDERER_SHADER_TOOL_HPP
 
+#include <Metal/Metal.hpp>
+#include <MetalKit/MetalKit.hpp>
 
 class ShaderTool {
 private:
     static std::string readSource(const char *filePath);
+
+public:
+    static MTL::Library* createLibrary(const char* shaderFilePath, MTL::Device* device);
 };
 
 

@@ -39,3 +39,17 @@ std::string ShaderTool::readSource(const char *filePath) {
 
     return source;
 }
+
+MTL::Library *ShaderTool::createLibrary(const char *shaderFilePath, MTL::Device *device) {
+    using NS::StringEncoding::UTF8StringEncoding;
+
+    NS::Error* error = nullptr;
+    auto sourceCode = readSource(shaderFilePath);
+    auto library = device->newLibrary(NS::String::string(sourceCode.c_str(), UTF8StringEncoding),
+                                      nullptr, &error);
+    if(!library) {
+        __builtin_printf("%s", error->localizedDescription()->utf8String());
+        assert(false);
+    }
+    return library;
+}
