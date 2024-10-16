@@ -19,8 +19,11 @@
 #include "renderer.hpp"
 
 class ViewDelegate : public MTK::ViewDelegate {
+private:
+    Renderer *_renderer;
+
 public:
-    ViewDelegate(MTL::Device* device);
+    explicit ViewDelegate(MTL::Device* device);
 
     ~ViewDelegate() override;
 

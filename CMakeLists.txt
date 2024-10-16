@@ -5,7 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(metal-cmake)
 
-add_executable(${PROJECT_NAME}  main.cpp
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+add_executable(${PROJECT_NAME}
+        main.cpp
         src/app_delegate.cpp
         src/app_delegate.hpp
         src/view_delegate.cpp

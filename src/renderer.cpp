@@ -11,3 +11,15 @@
 
 
 #include "renderer.hpp"
+
+Renderer::Renderer(MTL::Device *device) {
+
+}
+
+Renderer::~Renderer() {
+
+}
+
+void Renderer::Draw(MTK::View *view) {
+
+}
