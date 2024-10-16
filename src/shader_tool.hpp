@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file           : file_helper.hpp
+  * @file           : ShaderTool.hpp
   * @author         : toastoffee
   * @brief          : None
   * @attention      : None
@@ -10,14 +10,14 @@
 
 
 
-#ifndef METAL_RENDERER_FILE_HELPER_HPP
-#define METAL_RENDERER_FILE_HELPER_HPP
+#ifndef METAL_RENDERER_SHADER_TOOL_HPP
+#define METAL_RENDERER_SHADER_TOOL_HPP
 
 
-class FileHelper {
-public:
+class ShaderTool {
+private:
     static std::string readSource(const char *filePath);
 };
 
 
-#endif //METAL_RENDERER_FILE_HELPER_HPP
+#endif //METAL_RENDERER_SHADER_TOOL_HPP

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file           : file_helper.cpp
+  * @file           : ShaderTool.cpp
   * @author         : toastoffee
   * @brief          : None
   * @attention      : None
@@ -13,9 +13,9 @@
 #include <iostream>
 #include <string>
 
-#include "file_helper.hpp"
+#include "shader_tool.hpp"
 
-std::string FileHelper::readSource(const char *filePath) {
+std::string ShaderTool::readSource(const char *filePath) {
 
     std::string source;
 
