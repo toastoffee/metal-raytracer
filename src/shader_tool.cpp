@@ -53,3 +53,7 @@ MTL::Library *ShaderTool::createLibrary(const char *shaderFilePath, MTL::Device 
     }
     return library;
 }
+
+MTL::RenderPipelineState *ShaderTool::loadShader(const char *shaderFilePath, MTL::Device *device) {
+    return nullptr;
+}

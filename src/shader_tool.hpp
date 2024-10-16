@@ -19,9 +19,10 @@
 class ShaderTool {
 private:
     static std::string readSource(const char *filePath);
+    static MTL::Library* createLibrary(const char* shaderFilePath, MTL::Device* device);
 
 public:
-    static MTL::Library* createLibrary(const char* shaderFilePath, MTL::Device* device);
+    static MTL::RenderPipelineState* loadShader(const char* shaderFilePath, MTL::Device* device);
 };
 
 
