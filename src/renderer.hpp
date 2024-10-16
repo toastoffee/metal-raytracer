@@ -19,6 +19,10 @@
 class Renderer {
 private:
     MTL::Device* _device;
+    MTL::CommandQueue* _viewCommandQueue;
+    MTL::RenderPipelineState _viewPSO;
+    MTL::Buffer* _viewVertexDataBuffer;
+    MTL::Buffer* _viewIndexBuffer;
 
 public:
     explicit Renderer( MTL::Device* device );
@@ -26,6 +30,8 @@ public:
     ~Renderer();
 
     void Draw(MTK::View* view);
+
+    void BuildViewShaders();
 };
 
 

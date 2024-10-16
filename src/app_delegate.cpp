@@ -28,7 +28,7 @@ void AppDelegate::applicationWillFinishLaunching(NS::Notification *pNotification
 }
 
 void AppDelegate::applicationDidFinishLaunching(NS::Notification *pNotification) {
-    CGRect frame = (CGRect){{100.0, 100.0}, {512.0, 512.0}};
+    CGRect frame = (CGRect){{100.0, 100.0}, {1920.0, 1080.0}};
 
     _device = MTL::CreateSystemDefaultDevice();
 
