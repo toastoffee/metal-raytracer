@@ -55,5 +55,30 @@ MTL::Library *ShaderTool::createLibrary(const char *shaderFilePath, MTL::Device 
 }
 
 MTL::RenderPipelineState *ShaderTool::loadShader(const char *shaderFilePath, MTL::Device *device) {
-    return nullptr;
+    auto library = createLibrary(shaderFilePath, device);
+
+    MTL::Function* vertexFn = library->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
+    MTL::Function* fragFn = library->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
+
+    MTL::RenderPipelineDescriptor* desc = MTL::RenderPipelineDescriptor::alloc()->init();
+    desc->setVertexFunction(vertexFn);
+    desc->setFragmentFunction(fragFn);
+    desc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatRGBA8Unorm_sRGB);
+
+    NS::Error* error = nullptr;
+
+    MTL::RenderPipelineState *pso = device->newRenderPipelineState(desc, &error);
+
+    if ( !pso )
+    {
+        __builtin_printf( "%s", error->localizedDescription()->utf8String() );
+        assert( false );
+    }
+
+    vertexFn->release();
+    fragFn->release();
+    library->release();
+    desc->release();
+
+    return pso;
 }
