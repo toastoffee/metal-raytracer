@@ -12,7 +12,7 @@
 #include <simd/simd.h>
 
 #include "renderer.hpp"
-#include "file_helper.hpp"
+#include "shader_tool.hpp"
 
 Renderer::Renderer(MTL::Device *device)
 : _device( device->retain() )
@@ -31,7 +31,8 @@ void Renderer::Draw(MTK::View *view) {
 void Renderer::BuildViewShaders() {
     using NS::StringEncoding::UTF8StringEncoding;
 
-    std::string viewShaderSrc = FileHelper::readSource("../shaders/view.metal");
-    
+    MTL::Library* library = ShaderTool::createLibrary("../shaders/view.metal", _device);
+
+
 
 }

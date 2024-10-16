@@ -7,14 +7,10 @@
 #include <iostream>
 
 #include "app_delegate.hpp"
-#include "file_helper.hpp"
 
 int main( int argc, char* argv[] )
 {
 
-    auto src = FileHelper::readSource("../shaders/view.metal");
-
-    std::cout << src << std::endl;
 
     NS::AutoreleasePool* autoreleasePool = NS::AutoreleasePool::alloc()->init();
 
