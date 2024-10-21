@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME}
         src/renderer.hpp
         src/shader_tool.cpp
         src/shader_tool.hpp
+        src/shader_types.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} METAL_CPP)
