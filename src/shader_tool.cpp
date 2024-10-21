@@ -57,8 +57,8 @@ MTL::Library *ShaderTool::createLibrary(const char *shaderFilePath, MTL::Device 
 MTL::RenderPipelineState *ShaderTool::loadShader(const char *shaderFilePath, MTL::Device *device) {
     auto library = createLibrary(shaderFilePath, device);
 
-    MTL::Function* vertexFn = library->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
-    MTL::Function* fragFn = library->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
+    MTL::Function* vertexFn = library->newFunction(NS::String::string("vertexMain", NS::StringEncoding::UTF8StringEncoding));
+    MTL::Function* fragFn = library->newFunction(NS::String::string("fragmentMain", NS::StringEncoding::UTF8StringEncoding));
 
     MTL::RenderPipelineDescriptor* desc = MTL::RenderPipelineDescriptor::alloc()->init();
     desc->setVertexFunction(vertexFn);
