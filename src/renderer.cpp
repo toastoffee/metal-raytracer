@@ -40,7 +40,7 @@ void Renderer::Draw(MTK::View *view) {
     enc->setVertexBuffer(_viewVertexDataBuffer, 0, 0);
     enc->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
     enc->drawIndexedPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle,
-                               3 , MTL::IndexType::IndexTypeUInt16,
+                               6 , MTL::IndexType::IndexTypeUInt16,
                                _viewIndexBuffer, 0);
 
     enc->endEncoding();
@@ -56,15 +56,16 @@ void Renderer::BuildViewShaders() {
 
 void Renderer::BuildViewBuffers() {
 
-    simd::float3 vertices[] =
-    {
-        { -0.8f,  0.8f, 0.0f },
-        {  0.0f, -0.8f, 0.0f },
-        { +0.8f,  0.8f, 0.0f }
+    shader_types::VertexData vertices[] = {
+            {{-1, -1, 0}, {0, 0}},
+            {{+1, -1, 0}, {1, 0}},
+            {{-1, +1, 0}, {0, 1}},
+            {{+1, +1, 0}, {1, 1}}
     };
 
     uint16_t indices[] = {
             0, 1, 2,
+            2, 1, 3
     };
 
     const size_t vertexDataSize = sizeof(vertices);
