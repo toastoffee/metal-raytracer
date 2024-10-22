@@ -21,8 +21,11 @@ private:
     MTL::Device* _device;
     MTL::CommandQueue* _viewCommandQueue;
     MTL::RenderPipelineState* _viewPSO;
+    MTL::RenderPipelineState* _computePSO;
+
     MTL::Buffer* _viewVertexDataBuffer;
     MTL::Buffer* _viewIndexBuffer;
+    MTL::Texture* _texture;
 
 public:
     explicit Renderer( MTL::Device* device );
@@ -33,6 +36,10 @@ public:
 
     void BuildViewShaders();
     void BuildViewBuffers();
+    void BuildComputePipeline();
+    void BuildTextures();
+
+    void GenerateMandelbrotTexture(MTL::CommandBuffer* commandBuffer);
 };
 
 
