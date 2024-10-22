@@ -21,11 +21,14 @@ private:
     MTL::Device* _device;
     MTL::CommandQueue* _viewCommandQueue;
     MTL::RenderPipelineState* _viewPSO;
-    MTL::RenderPipelineState* _computePSO;
+    MTL::ComputePipelineState* _computePSO;
 
     MTL::Buffer* _viewVertexDataBuffer;
     MTL::Buffer* _viewIndexBuffer;
     MTL::Texture* _texture;
+
+    MTL::Buffer* _textureAnimBuffer;
+    uint _animIdx;
 
 public:
     explicit Renderer( MTL::Device* device );

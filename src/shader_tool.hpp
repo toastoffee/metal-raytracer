@@ -23,6 +23,7 @@ private:
 
 public:
     static MTL::RenderPipelineState* loadShader(const char* shaderFilePath, MTL::Device* device);
+    static MTL::ComputePipelineState* loadComputeShader(const char* shaderFilePath, MTL::Device* device);
 };
 
 

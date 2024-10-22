@@ -82,3 +82,22 @@ MTL::RenderPipelineState *ShaderTool::loadShader(const char *shaderFilePath, MTL
 
     return pso;
 }
+
+MTL::ComputePipelineState *ShaderTool::loadComputeShader(const char *shaderFilePath, MTL::Device *device) {
+    auto computeLibrary = createLibrary(shaderFilePath, device);
+
+    MTL::Function* computeFunc = computeLibrary->newFunction(NS::String::string("computeMain", NS::UTF8StringEncoding));
+
+    NS::Error* error = nullptr;
+
+    MTL::ComputePipelineState *pso = device->newComputePipelineState(computeFunc, &error);
+
+    if( !pso )
+    {
+        __builtin_printf( "%s", error->localizedDescription()->utf8String() );
+        assert( false );
+    }
+
+    computeFunc->release();
+    computeLibrary->release();
+}

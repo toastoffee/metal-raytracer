@@ -19,7 +19,8 @@ static constexpr uint32_t kTextureWidth = 1280;
 static constexpr uint32_t kTextureHeight = 1280;
 
 Renderer::Renderer(MTL::Device *device)
-: _device( device->retain() )
+: _device( device->retain() ),
+  _animIdx(0)
 {
     _viewCommandQueue = _device->newCommandQueue();
 
@@ -89,6 +90,8 @@ void Renderer::BuildViewBuffers() {
 
     _viewVertexDataBuffer->didModifyRange(NS::Range::Make(0, _viewVertexDataBuffer->length()));
     _viewIndexBuffer->didModifyRange(NS::Range::Make(0, _viewIndexBuffer->length()));
+
+    _textureAnimBuffer = _device->newBuffer(sizeof(uint), MTL::ResourceStorageModeManaged);
 }
 
 void Renderer::BuildTextures() {
@@ -112,4 +115,13 @@ void Renderer::BuildComputePipeline() {
 
 void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
 
+    assert(commandBuffer);
+
+    uint* ptr = reinterpret_cast<uint*>(_textureAnimBuffer->contents());
+    *ptr = (_animIdx++) % 5000;
+    _textureAnimBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
+
+    MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
+
+    computeCmdEnc->setComputePipelineState(_computePSO);
 }

@@ -1,7 +1,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-kernel void mandelbrot_set(texture2d< half, access::write > tex [[texture(0)]],
+kernel void computeMain(texture2d< half, access::write > tex [[texture(0)]],
                             uint2 index [[thread_position_in_grid]],
                             uint2 gridSize [[threads_per_grid]],
                             device const uint* frame [[buffer(0)]])
