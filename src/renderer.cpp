@@ -15,8 +15,8 @@
 #include "shader_tool.hpp"
 #include "shader_types.hpp"
 
-static constexpr uint32_t kTextureWidth = 2560;
-static constexpr uint32_t kTextureHeight = 1440;
+static constexpr uint32_t kTextureWidth = 1920;
+static constexpr uint32_t kTextureHeight = 1080;
 
 Renderer::Renderer(MTL::Device *device)
 : _device( device->retain() ),
@@ -118,7 +118,8 @@ void Renderer::BuildTextures() {
 }
 
 void Renderer::BuildComputePipeline() {
-    _computePSO = ShaderTool::loadComputeShader("../shaders/mandelbrot.metal", _device);
+//    _computePSO = ShaderTool::loadComputeShader("../shaders/mandelbrot.metal", _device);
+    _computePSO = ShaderTool::loadComputeShader("../shaders/raytrace.metal", _device);
 }
 
 void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
