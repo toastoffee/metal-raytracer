@@ -34,7 +34,7 @@ half4 fragment fragmentMain( v2f in [[stage_in]], texture2d< half, access::sampl
     constexpr sampler s( address::repeat, filter::linear );
     half3 texel = tex.sample( s, in.texcoord ).rgb;
 
-    return half4( in.texcoord.x, in.texcoord.y, 0.0, 1.0 );
+    return half4( texel, 1.0 );
     // return half4(1.0, 0.0, 0.0, 1.0);
 }
 

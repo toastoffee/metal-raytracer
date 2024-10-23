@@ -15,8 +15,8 @@
 #include "shader_tool.hpp"
 #include "shader_types.hpp"
 
-static constexpr uint32_t kTextureWidth = 1280;
-static constexpr uint32_t kTextureHeight = 1280;
+static constexpr uint32_t kTextureWidth = 2560;
+static constexpr uint32_t kTextureHeight = 1440;
 
 Renderer::Renderer(MTL::Device *device)
 : _device( device->retain() ),
@@ -26,6 +26,8 @@ Renderer::Renderer(MTL::Device *device)
 
     BuildViewBuffers();
     BuildViewShaders();
+    BuildComputePipeline();
+    BuildTextures();
 }
 
 Renderer::~Renderer() {
@@ -41,11 +43,17 @@ void Renderer::Draw(MTK::View *view) {
 
     MTL::CommandBuffer* cmd = _viewCommandQueue->commandBuffer();
 
+
+    GenerateMandelbrotTexture(cmd);
+
     MTL::RenderPassDescriptor* rpd = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder* enc = cmd->renderCommandEncoder(rpd);
 
     enc->setRenderPipelineState(_viewPSO);
+
     enc->setVertexBuffer(_viewVertexDataBuffer, 0, 0);
+    enc->setFragmentTexture( _texture, /* index */ 0 );
+
     enc->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
     enc->drawIndexedPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle,
                                6 , MTL::IndexType::IndexTypeUInt16,
@@ -110,7 +118,7 @@ void Renderer::BuildTextures() {
 }
 
 void Renderer::BuildComputePipeline() {
-    _computePSO = ShaderTool::loadShader("../shaders/mandelbrot.metal", _device);
+    _computePSO = ShaderTool::loadComputeShader("../shaders/mandelbrot.metal", _device);
 }
 
 void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
@@ -124,4 +132,15 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
 
     computeCmdEnc->setComputePipelineState(_computePSO);
+    computeCmdEnc->setTexture(_texture, 0);
+    computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
+
+    MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);
+
+    NS::UInteger threadSize = _computePSO->maxTotalThreadsPerThreadgroup();
+    MTL::Size threadGroupSize(threadSize, 1, 1);
+
+    computeCmdEnc->dispatchThreads(gridSize, threadGroupSize);
+
+    computeCmdEnc->endEncoding();
 }

@@ -100,4 +100,6 @@ MTL::ComputePipelineState *ShaderTool::loadComputeShader(const char *shaderFileP
 
     computeFunc->release();
     computeLibrary->release();
+
+    return pso;
 }
