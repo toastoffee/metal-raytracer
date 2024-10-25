@@ -6,9 +6,14 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(metal-cmake)
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/third_party)
 
 add_executable(${PROJECT_NAME}
         main.cpp
+
+        # stbi
+        third_party/stbi/stb_image.cpp
+
         src/app_delegate.cpp
         src/app_delegate.hpp
         src/view_delegate.cpp

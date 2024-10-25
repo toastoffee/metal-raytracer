@@ -29,5 +29,4 @@ kernel void computeMain(texture2d< half, access::write > tex [[texture(0)]],
     dir = normalize(dir);
 
     tex.write(half4(dir.x, dir.y, dir.z, 1.0), index, 0);
-    
 }

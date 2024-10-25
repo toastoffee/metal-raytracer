@@ -11,7 +11,6 @@
 int main( int argc, char* argv[] )
 {
 
-
     NS::AutoreleasePool* autoreleasePool = NS::AutoreleasePool::alloc()->init();
 
     AppDelegate appDelegate;
