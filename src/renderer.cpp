@@ -107,51 +107,10 @@ void Renderer::BuildViewBuffers() {
 }
 
 void Renderer::BuildTextures() {
+    _texture =  ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
 
-    stbi_set_flip_vertically_on_load(false);
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("../static/skybox/front.jpg",&width, &height, &nrChannels, 3);
-
-    MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
-
-//    textureDesc->setWidth(kTextureWidth);
-//    textureDesc->setHeight(kTextureHeight);
-    textureDesc->setWidth(width);
-    textureDesc->setHeight(height);
-
-    textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-    textureDesc->setTextureType(MTL::TextureType2D);
-    textureDesc->setStorageMode(MTL::StorageModeManaged);
-    textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite);
-
-    MTL::Texture *texture = _device->newTexture(textureDesc);
-
-    MTL::Buffer* texBuffer = _device->newBuffer(width * height * 4, MTL::ResourceStorageModeManaged);
-    texture = texBuffer->newTexture(textureDesc, 0, width * 4);
-
-    _texture = texture;
-
-//    if(data) {
-//        const size_t texSize = width * height * 3;
-//        MTL::Buffer* texBuffer = _device->newBuffer(texSize, MTL::ResourceStorageModeManaged);
-////        memcpy(texBuffer->contents(), data, texSize);
-//
-        for (int i = 0; i < width; ++i) {
-            for (int j = 0; j < height; ++j) {
-                int idx = i * height + j;
-                ((unsigned char *)texBuffer->contents())[4 * idx] = 0xFF;
-                ((unsigned char *)texBuffer->contents())[4 * idx + 1] = 0x00;
-                ((unsigned char *)texBuffer->contents())[4 * idx + 2] = 0xFF;
-                ((unsigned char *)texBuffer->contents())[4 * idx + 3] = 0xFF;
-//                ((unsigned int *)texBuffer->contents())[idx] = 0xFF00FFFF;
-
-            }
-        }
-
-        texBuffer->didModifyRange(NS::Range::Make(0, width * height * 4));
-//    }
-
-    textureDesc->release();
+    // build skybox textures
+    
 }
 
 void Renderer::BuildComputePipeline() {

@@ -32,7 +32,9 @@ v2f vertex vertexMain( device const VertexData* vertexData [[buffer(0)]],
 half4 fragment fragmentMain( v2f in [[stage_in]], texture2d< half, access::sample > tex [[texture(0)]] )
 {
     constexpr sampler s( address::repeat, filter::linear );
-    half3 texel = tex.sample( s, in.texcoord ).rgb;
+
+    float2 texcoords = float2(in.texcoord.x, in.texcoord.y);
+    half3 texel = tex.sample( s, texcoords ).rgb;
 
     return half4( texel, 1.0 );
 }

@@ -28,6 +28,9 @@ private:
     MTL::Texture* _texture;
 
     MTL::Buffer* _textureAnimBuffer;
+
+    MTL::Buffer* _skyboxArgBuffer;
+
     uint _animIdx;
 
 public:

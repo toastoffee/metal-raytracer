@@ -107,10 +107,10 @@ MTL::ComputePipelineState *ShaderTool::loadComputeShader(const char *shaderFileP
     return pso;
 }
 
-MTL::Texture *ShaderTool::loadTexture(const char *textureFilePath, MTL::Device *device, int &width, int &height) {
+MTL::Texture *ShaderTool::loadTexture(const char *textureFilePath, MTL::Device *device) {
 
     stbi_set_flip_vertically_on_load(false);
-    int nrChannels;
+    int nrChannels, width, height;
     unsigned char *data = stbi_load(textureFilePath, &width, &height, &nrChannels, 3);
 
 
@@ -129,13 +129,12 @@ MTL::Texture *ShaderTool::loadTexture(const char *textureFilePath, MTL::Device *
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
             int pxlIdx = i * height + j;
-            memcpy((unsigned char *)texBuf->contents() + 4 * pxlIdx, data + nrChannels * pxlIdx, nrChannels);
+            memcpy((unsigned char *)texBuf->contents() + 4 * pxlIdx, data + 3 * pxlIdx, 3);
 
-            if(nrChannels == 3) {
-                ((unsigned char *)texBuf->contents())[4 * pxlIdx + 3] = 0xFF;
-            }
+            ((unsigned char *)texBuf->contents())[4 * pxlIdx + 3] = 0xFF;
         }
     }
+
     texBuf->didModifyRange(NS::Range::Make(0, width * height * 4));
 
     textureDesc->release();
