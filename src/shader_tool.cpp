@@ -8,10 +8,13 @@
   ******************************************************************************
   */
 
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <string>
+
+#include <stbi/stb_image.h>
 
 #include "shader_tool.hpp"
 
@@ -102,4 +105,40 @@ MTL::ComputePipelineState *ShaderTool::loadComputeShader(const char *shaderFileP
     computeLibrary->release();
 
     return pso;
+}
+
+MTL::Texture *ShaderTool::loadTexture(const char *textureFilePath, MTL::Device *device, int &width, int &height) {
+
+    stbi_set_flip_vertically_on_load(false);
+    int nrChannels;
+    unsigned char *data = stbi_load(textureFilePath, &width, &height, &nrChannels, 3);
+
+
+    MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
+    textureDesc->setWidth(width);
+    textureDesc->setHeight(height);
+    textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+    textureDesc->setTextureType(MTL::TextureType2D);
+    textureDesc->setStorageMode(MTL::StorageModeManaged);
+    textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite);
+
+    MTL::Buffer* texBuf = device->newBuffer(width * height * 4, MTL::ResourceStorageModeManaged);
+
+    MTL::Texture* texture = texBuf->newTexture(textureDesc, 0, width * 4);
+
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            int pxlIdx = i * height + j;
+            memcpy((unsigned char *)texBuf->contents() + 4 * pxlIdx, data + nrChannels * pxlIdx, nrChannels);
+
+            if(nrChannels == 3) {
+                ((unsigned char *)texBuf->contents())[4 * pxlIdx + 3] = 0xFF;
+            }
+        }
+    }
+    texBuf->didModifyRange(NS::Range::Make(0, width * height * 4));
+
+    textureDesc->release();
+
+    return texture;
 }
