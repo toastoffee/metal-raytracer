@@ -31,6 +31,7 @@ Renderer::Renderer(MTL::Device *device)
     BuildViewShaders();
     BuildComputePipeline();
     BuildTextures();
+    BuildSkyboxBuffers();
 }
 
 Renderer::~Renderer() {
@@ -110,7 +111,7 @@ void Renderer::BuildTextures() {
     _texture =  ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
 
     // build skybox textures
-    
+
 }
 
 void Renderer::BuildComputePipeline() {
@@ -140,4 +141,8 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
     computeCmdEnc->dispatchThreads(gridSize, threadGroupSize);
 
     computeCmdEnc->endEncoding();
+}
+
+void Renderer::BuildSkyboxBuffers() {
+
 }

@@ -45,6 +45,8 @@ public:
     void BuildComputePipeline();
     void BuildTextures();
 
+    void BuildSkyboxBuffers();
+
     void GenerateMandelbrotTexture(MTL::CommandBuffer* commandBuffer);
 };
 
