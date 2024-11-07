@@ -107,7 +107,7 @@ void Renderer::BuildShaders() {
 
 
 void Renderer::BuildTextures() {
-    _texture =  ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
+    _texture =  ShaderTool::createTexture(kTextureWidth, kTextureHeight, _device);
 
     // build skybox textures
     _skyboxFront = ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
@@ -130,6 +130,12 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
 
     computeCmdEnc->setComputePipelineState(_computePSO);
     computeCmdEnc->setTexture(_texture, 0);
+    computeCmdEnc->setTexture(_skyboxFront, 1);
+    computeCmdEnc->setTexture(_skyboxBack, 2);
+    computeCmdEnc->setTexture(_skyboxLeft, 3);
+    computeCmdEnc->setTexture(_skyboxRight, 4);
+    computeCmdEnc->setTexture(_skyboxTop, 5);
+    computeCmdEnc->setTexture(_skyboxBottom, 6);
     computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
 
     MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);

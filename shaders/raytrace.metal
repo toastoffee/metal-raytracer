@@ -1,10 +1,18 @@
 #include <metal_stdlib>
 using namespace metal;
 
-kernel void computeMain(texture2d< half, access::write > tex [[texture(0)]],
-                            uint2 index [[thread_position_in_grid]],
-                            uint2 gridSize [[threads_per_grid]],
-                            device const uint* frame [[buffer(0)]])
+#include "../shaders/skybox_sample.metal"
+
+kernel void computeMain(texture2d< half, access::write > tex            [[texture(0)]],
+                        texture2d< half, access::sample > skybox_front  [[texture(1)]],
+                        texture2d< half, access::sample > skybox_back   [[texture(2)]],
+                        texture2d< half, access::sample > skybox_left   [[texture(3)]],
+                        texture2d< half, access::sample > skybox_right  [[texture(4)]],
+                        texture2d< half, access::sample > skybox_top    [[texture(5)]],
+                        texture2d< half, access::sample > skybox_bottom [[texture(6)]],
+                        uint2 index [[thread_position_in_grid]],
+                        uint2 gridSize [[threads_per_grid]],
+                        device const uint* frame [[buffer(0)]])
 {
 
     constexpr float fov = 90.0;
@@ -28,5 +36,6 @@ kernel void computeMain(texture2d< half, access::write > tex [[texture(0)]],
 
     dir = normalize(dir);
 
-    tex.write(half4(dir.x, dir.y, dir.z, 1.0), index, 0);
+    tex.write(sample_skybox(dir), index, 0);
+    // tex.write(half4(dir.x, dir.y, dir.z, 1.0), index, 0);
 }
