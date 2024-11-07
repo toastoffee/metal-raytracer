@@ -141,3 +141,18 @@ MTL::Texture *ShaderTool::loadTexture(const char *textureFilePath, MTL::Device *
 
     return texture;
 }
+
+MTL::Texture *ShaderTool::createTexture(uint32_t width, uint32_t height, MTL::Device *device) {
+    MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
+    textureDesc->setWidth(width);
+    textureDesc->setHeight(height);
+    textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+    textureDesc->setTextureType(MTL::TextureType2D);
+    textureDesc->setStorageMode(MTL::StorageModeManaged);
+    textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite);
+
+    MTL::Texture* texture = device->newTexture(textureDesc);
+    textureDesc->release();
+
+    return texture;
+}

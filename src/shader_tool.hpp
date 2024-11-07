@@ -24,7 +24,9 @@ private:
 public:
     static MTL::RenderPipelineState* loadShader(const char* shaderFilePath, MTL::Device* device);
     static MTL::ComputePipelineState* loadComputeShader(const char* shaderFilePath, MTL::Device* device);
+
     static MTL::Texture* loadTexture(const char *textureFilePath, MTL::Device* device);
+    static MTL::Texture* createTexture(uint32_t width, uint32_t height, MTL::Device* device);
 };
 
 

@@ -28,10 +28,8 @@ Renderer::Renderer(MTL::Device *device)
     _viewCommandQueue = _device->newCommandQueue();
 
     BuildViewBuffers();
-    BuildViewShaders();
-    BuildComputePipeline();
+    BuildShaders();
     BuildTextures();
-    BuildSkyboxBuffers();
 }
 
 Renderer::~Renderer() {
@@ -48,7 +46,7 @@ void Renderer::Draw(MTK::View *view) {
     MTL::CommandBuffer* cmd = _viewCommandQueue->commandBuffer();
 
 
-//    GenerateMandelbrotTexture(cmd);
+    GenerateMandelbrotTexture(cmd);
 
     MTL::RenderPassDescriptor* rpd = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder* enc = cmd->renderCommandEncoder(rpd);
@@ -68,10 +66,6 @@ void Renderer::Draw(MTK::View *view) {
     cmd->commit();
 
     pool->release();
-}
-
-void Renderer::BuildViewShaders() {
-    _viewPSO = ShaderTool::loadShader("../shaders/view.metal", _device);
 }
 
 void Renderer::BuildViewBuffers() {
@@ -104,19 +98,24 @@ void Renderer::BuildViewBuffers() {
     _viewIndexBuffer->didModifyRange(NS::Range::Make(0, _viewIndexBuffer->length()));
 
     _textureAnimBuffer = _device->newBuffer(sizeof(uint), MTL::ResourceStorageModeManaged);
-
 }
+
+void Renderer::BuildShaders() {
+    _viewPSO = ShaderTool::loadShader("../shaders/view.metal", _device);
+    _computePSO = ShaderTool::loadComputeShader("../shaders/raytrace.metal", _device);
+}
+
 
 void Renderer::BuildTextures() {
     _texture =  ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
 
     // build skybox textures
-
-}
-
-void Renderer::BuildComputePipeline() {
-//    _computePSO = ShaderTool::loadComputeShader("../shaders/mandelbrot.metal", _device);
-    _computePSO = ShaderTool::loadComputeShader("../shaders/raytrace.metal", _device);
+    _skyboxFront = ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
+    _skyboxBack = ShaderTool::loadTexture("../static/skybox/back.jpg", _device);
+    _skyboxLeft = ShaderTool::loadTexture("../static/skybox/left.jpg", _device);
+    _skyboxRight = ShaderTool::loadTexture("../static/skybox/right.jpg", _device);
+    _skyboxTop = ShaderTool::loadTexture("../static/skybox/top.jpg", _device);
+    _skyboxBottom = ShaderTool::loadTexture("../static/skybox/bottom.jpg", _device);
 }
 
 void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
@@ -143,6 +142,3 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
     computeCmdEnc->endEncoding();
 }
 
-void Renderer::BuildSkyboxBuffers() {
-
-}

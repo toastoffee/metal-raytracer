@@ -29,7 +29,12 @@ private:
 
     MTL::Buffer* _textureAnimBuffer;
 
-    MTL::Buffer* _skyboxArgBuffer;
+    MTL::Texture* _skyboxFront;
+    MTL::Texture* _skyboxBack;
+    MTL::Texture* _skyboxLeft;
+    MTL::Texture* _skyboxRight;
+    MTL::Texture* _skyboxTop;
+    MTL::Texture* _skyboxBottom;
 
     uint _animIdx;
 
@@ -40,12 +45,10 @@ public:
 
     void Draw(MTK::View* view);
 
-    void BuildViewShaders();
     void BuildViewBuffers();
-    void BuildComputePipeline();
-    void BuildTextures();
 
-    void BuildSkyboxBuffers();
+    void BuildShaders();
+    void BuildTextures();
 
     void GenerateMandelbrotTexture(MTL::CommandBuffer* commandBuffer);
 };
