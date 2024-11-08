@@ -1,7 +1,39 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#include "../shaders/skybox_sample.metal"
+half4 sample_skybox(float3 dir,
+                    texture2d< half, access::sample > skybox_front,
+                    texture2d< half, access::sample > skybox_back,
+                    texture2d< half, access::sample > skybox_left,
+                    texture2d< half, access::sample > skybox_right,
+                    texture2d< half, access::sample > skybox_top,
+                    texture2d< half, access::sample > skybox_bottom)
+{
+
+    constexpr sampler s( address::repeat, filter::linear );
+
+    // forward
+    if(dir.z > 0.0) 
+    {
+        float t = 0.5 / dir.z;
+        float intersect_u = t * dir.x;
+        float intersect_v = t * dir.y;
+
+        if(intersect_u >= -0.5 && intersect_u <= 0.5
+            && intersect_v >= -0.5 && intersect_v <= 0.5)
+        {
+            float u = (intersect_u + 0.5) / 1.0;
+            float v = (intersect_v + 0.5) / 1.0;
+
+            float2 texcoords = float2(u, 1.0 - v);
+            half3 texel = skybox_front.sample( s, texcoords ).rgb;
+
+            return half4( texel, 1.0 );
+        }
+    }
+
+    return half4(dir.x, dir.y, dir.z, 1.0);
+}
 
 kernel void computeMain(texture2d< half, access::write > tex            [[texture(0)]],
                         texture2d< half, access::sample > skybox_front  [[texture(1)]],
@@ -36,6 +68,6 @@ kernel void computeMain(texture2d< half, access::write > tex            [[textur
 
     dir = normalize(dir);
 
-    tex.write(sample_skybox(dir), index, 0);
+    tex.write(sample_skybox(dir, skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom), index, 0);
     // tex.write(half4(dir.x, dir.y, dir.z, 1.0), index, 0);
 }
