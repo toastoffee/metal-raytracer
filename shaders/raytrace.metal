@@ -149,7 +149,8 @@ kernel void computeMain(texture2d< half, access::write > tex            [[textur
                         texture2d< half, access::sample > skybox_top    [[texture(5)]],
                         texture2d< half, access::sample > skybox_bottom [[texture(6)]],
 
-                        device const CameraData& cameraData [[buffer(0)]],
+                        device const CameraData& cameraData     [[buffer(0)]],
+                        device const uint*       sample_count   [[buffer(1)]],
 
                         uint2 index [[thread_position_in_grid]],
                         uint2 gridSize [[threads_per_grid]])

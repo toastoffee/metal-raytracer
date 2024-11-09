@@ -38,6 +38,8 @@ private:
 
     MTL::Buffer* _cameraDataBuffer;
 
+    MTL::Buffer* _sampleCountBuffer;
+
     uint _animIdx;
 
 public:

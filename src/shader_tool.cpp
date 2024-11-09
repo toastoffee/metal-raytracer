@@ -156,3 +156,22 @@ MTL::Texture *ShaderTool::createTexture(uint32_t width, uint32_t height, MTL::De
 
     return texture;
 }
+
+MTL::Buffer *ShaderTool::createBuffer(void *src, size_t size, MTL::Device *device) {
+    MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+
+    memcpy( buffer->contents(), src, size );
+
+    buffer->didModifyRange(NS::Range::Make(0, buffer->length()));
+
+    return buffer;
+}
+
+template<typename T>
+MTL::Buffer *ShaderTool::createBuffer(MTL::Device *device) {
+    const size_t size = sizeof(T);
+
+    MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+
+    return buffer;
+}

@@ -27,6 +27,12 @@ public:
 
     static MTL::Texture* loadTexture(const char *textureFilePath, MTL::Device* device);
     static MTL::Texture* createTexture(uint32_t width, uint32_t height, MTL::Device* device);
+
+    static MTL::Buffer* createBuffer(void* src, size_t size, MTL::Device* device);
+
+    template<typename T>
+    static MTL::Buffer* createBuffer(MTL::Device* device);
+
 };
 
 
