@@ -127,7 +127,7 @@ void Renderer::BuildBuffers() {
     _cameraDataBuffer = ShaderTool::createBuffer(&cameraData, cameraDataSize, _device);
 
     // 4. sample count buffer
-    _sampleCountBuffer = ShaderTool::createEmptyBuffer<uint>(_device);
+    _sampleCountBuffer = ShaderTool::createEmptyBuffer(sizeof(uint), _device);
 }
 
 void Renderer::BuildShaders() {
@@ -155,7 +155,9 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
     uint* ptr = reinterpret_cast<uint*>(_sampleCountBuffer->contents());
     *ptr = _sampleCount++;
     _sampleCountBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
-    
+
+    std::cout << *ptr << std::endl;
+
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
 
     computeCmdEnc->setComputePipelineState(_computePSO);
