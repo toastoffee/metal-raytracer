@@ -101,9 +101,9 @@ void Renderer::BuildViewBuffers() {
 }
 
 void Renderer::BuildCameraBuffer() {
-    shader_types::CameraData cameraData{
-        
-    }
+//    shader_types::CameraData cameraData{
+//
+//    }
 }
 
 void Renderer::BuildShaders() {
