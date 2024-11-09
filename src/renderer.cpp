@@ -15,6 +15,7 @@
 
 #include "renderer.hpp"
 #include "shader_tool.hpp"
+#include "matrix_tool.hpp"
 #include "shader_types.hpp"
 
 
@@ -28,6 +29,8 @@ Renderer::Renderer(MTL::Device *device)
     _viewCommandQueue = _device->newCommandQueue();
 
     BuildViewBuffers();
+    BuildCameraBuffer();
+
     BuildShaders();
     BuildTextures();
 }
@@ -101,9 +104,16 @@ void Renderer::BuildViewBuffers() {
 }
 
 void Renderer::BuildCameraBuffer() {
-//    shader_types::CameraData cameraData{
-//
-//    }
+    shader_types::CameraData cameraData{
+        MatrixTool::makeYRotate(1.0 / 2.0) * MatrixTool::makeXRotate(-0.5/2.0), MatrixTool::makeIdentity()
+    };
+
+    const size_t cameraDataSize = sizeof(cameraData);
+    _cameraDataBuffer = _device->newBuffer(cameraDataSize, MTL::ResourceStorageModeManaged);
+
+    memcpy(_cameraDataBuffer->contents(), &cameraData, cameraDataSize);
+
+    _cameraDataBuffer->didModifyRange(NS::Range::Make(0, _cameraDataBuffer->length()));
 }
 
 void Renderer::BuildShaders() {
@@ -134,6 +144,7 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
 
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
 
+
     computeCmdEnc->setComputePipelineState(_computePSO);
     computeCmdEnc->setTexture(_texture, 0);
     computeCmdEnc->setTexture(_skyboxFront, 1);
@@ -143,6 +154,8 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
     computeCmdEnc->setTexture(_skyboxTop, 5);
     computeCmdEnc->setTexture(_skyboxBottom, 6);
     computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
+
+    computeCmdEnc->setBuffer(_cameraDataBuffer, 0, 0);
 
     MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);
 

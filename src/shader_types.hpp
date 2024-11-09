@@ -26,7 +26,7 @@ namespace shader_types
     struct CameraData
     {
         simd::float4x4 rotationMatrix;
-        simd::float3 position;
+        simd::float4x4 translateMatrix;
     };
 }
 

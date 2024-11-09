@@ -10,7 +10,7 @@ half4 sample_skybox(float3 dir,
                     texture2d< half, access::sample > skybox_bottom)
 {
 
-    constexpr sampler s( address::repeat, filter::linear );
+    constexpr sampler s( address::clamp_to_edge, filter::linear );
 
     // forward
     if(dir.z > 0.0) 
@@ -125,20 +125,20 @@ half4 sample_skybox(float3 dir,
             float u = (intersect_u + 0.5) / 1.0;
             float v = (intersect_v + 0.5) / 1.0;
 
-            float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = skybox_top.sample( s, texcoords ).rgb;
+            float2 texcoords = float2(u, 1.0-v);
+            half3 texel = skybox_bottom.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
     }
 
-    return half4(dir.x, dir.y, dir.z, 1.0);
+    return half4(1.0, 0.0, 0.0, 1.0);
 }
 
 struct CameraData
 {
     float4x4 rotationMatrix;
-    float3 position;
+    float4x4 translateMatrix;
 };
 
 kernel void computeMain(texture2d< half, access::write > tex            [[texture(0)]],
@@ -164,15 +164,21 @@ kernel void computeMain(texture2d< half, access::write > tex            [[textur
     float viewportWidth = viewportHeight * aspectRatio;
 
 
-    float3 origin = {0, 0, 0};
     float3 viewportForward = {0, 0, viewportDist};
     float3 viewportUp      = {0, viewportHeight, 0};
     float3 viewportRight   = {viewportWidth, 0, 0};
-    float3 viewportLeftBtm = origin + viewportForward - viewportUp / 2 - viewportRight / 2;
+
+
+    float3 viewportLeftBtm = viewportForward - viewportUp / 2 - viewportRight / 2;
     
     float3 dir = viewportLeftBtm 
                 + ((index.x + 0.5) / 1920.0) * viewportRight
                 + ((index.y + 0.5) / 1080.0) * viewportUp;
+
+    float4 dir4 = {dir.x, dir.y, dir.z, 1};
+    dir4 = cameraData.rotationMatrix * dir4;
+
+    dir = {dir4.x, dir4.y, dir4.z};
 
     dir = normalize(dir);
 

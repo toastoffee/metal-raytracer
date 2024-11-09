@@ -16,6 +16,7 @@
 #include <simd/simd.h>
 
 class MatrixTool {
+public:
     static simd::float4x4 makeIdentity();
     static simd::float4x4 makeXRotate(float radians);
     static simd::float4x4 makeYRotate(float radians);

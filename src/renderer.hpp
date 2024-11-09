@@ -36,6 +36,8 @@ private:
     MTL::Texture* _skyboxTop;
     MTL::Texture* _skyboxBottom;
 
+    MTL::Buffer* _cameraDataBuffer;
+
     uint _animIdx;
 
 public:
