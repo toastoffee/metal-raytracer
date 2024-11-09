@@ -46,6 +46,7 @@ public:
     void Draw(MTK::View* view);
 
     void BuildViewBuffers();
+    void BuildCameraBuffer();
 
     void BuildShaders();
     void BuildTextures();

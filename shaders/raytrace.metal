@@ -135,6 +135,12 @@ half4 sample_skybox(float3 dir,
     return half4(dir.x, dir.y, dir.z, 1.0);
 }
 
+struct CameraData
+{
+    float4x4 rotationMatrix;
+    float3 position;
+};
+
 kernel void computeMain(texture2d< half, access::write > tex            [[texture(0)]],
                         texture2d< half, access::sample > skybox_front  [[texture(1)]],
                         texture2d< half, access::sample > skybox_back   [[texture(2)]],
@@ -142,9 +148,11 @@ kernel void computeMain(texture2d< half, access::write > tex            [[textur
                         texture2d< half, access::sample > skybox_right  [[texture(4)]],
                         texture2d< half, access::sample > skybox_top    [[texture(5)]],
                         texture2d< half, access::sample > skybox_bottom [[texture(6)]],
+
+                        device const CameraData& cameraData [[buffer(0)]],
+
                         uint2 index [[thread_position_in_grid]],
-                        uint2 gridSize [[threads_per_grid]],
-                        device const uint* frame [[buffer(0)]])
+                        uint2 gridSize [[threads_per_grid]])
 {
 
     constexpr float fov = 90.0;

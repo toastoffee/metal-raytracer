@@ -100,6 +100,12 @@ void Renderer::BuildViewBuffers() {
     _textureAnimBuffer = _device->newBuffer(sizeof(uint), MTL::ResourceStorageModeManaged);
 }
 
+void Renderer::BuildCameraBuffer() {
+    shader_types::CameraData cameraData{
+        
+    }
+}
+
 void Renderer::BuildShaders() {
     _viewPSO = ShaderTool::loadShader("../shaders/view.metal", _device);
     _computePSO = ShaderTool::loadComputeShader("../shaders/raytrace.metal", _device);
@@ -147,4 +153,5 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
 
     computeCmdEnc->endEncoding();
 }
+
 

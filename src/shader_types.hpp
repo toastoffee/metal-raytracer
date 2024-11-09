@@ -22,6 +22,12 @@ namespace shader_types
         simd::float3 position;
         simd::float2 texcoord;
     };
+
+    struct CameraData
+    {
+        simd::float4x4 rotationMatrix;
+        simd::float3 position;
+    };
 }
 
 #endif //METAL_RENDERER_SHADER_TYPES_HPP
