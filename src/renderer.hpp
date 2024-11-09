@@ -23,12 +23,8 @@ private:
     MTL::RenderPipelineState* _viewPSO;
     MTL::ComputePipelineState* _computePSO;
 
-    MTL::Buffer* _viewVertexDataBuffer;
-    MTL::Buffer* _viewIndexBuffer;
+
     MTL::Texture* _texture;
-
-    MTL::Buffer* _textureAnimBuffer;
-
     MTL::Texture* _skyboxFront;
     MTL::Texture* _skyboxBack;
     MTL::Texture* _skyboxLeft;
@@ -36,11 +32,12 @@ private:
     MTL::Texture* _skyboxTop;
     MTL::Texture* _skyboxBottom;
 
+    MTL::Buffer* _viewVertexDataBuffer;
+    MTL::Buffer* _viewIndexBuffer;
     MTL::Buffer* _cameraDataBuffer;
-
     MTL::Buffer* _sampleCountBuffer;
 
-    uint _animIdx;
+    uint _sampleCount;
 
 public:
     explicit Renderer( MTL::Device* device );
@@ -54,8 +51,9 @@ public:
 
     void BuildShaders();
     void BuildTextures();
+    void BuildBuffers();
 
-    void GenerateMandelbrotTexture(MTL::CommandBuffer* commandBuffer);
+    void GenerateRaytraceTexture(MTL::CommandBuffer* commandBuffer);
 };
 
 

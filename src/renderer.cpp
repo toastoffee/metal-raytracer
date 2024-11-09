@@ -24,13 +24,11 @@ static constexpr uint32_t kTextureHeight = 1080;
 
 Renderer::Renderer(MTL::Device *device)
 : _device( device->retain() ),
-  _animIdx(0)
+  _sampleCount(0)
 {
     _viewCommandQueue = _device->newCommandQueue();
 
-    BuildViewBuffers();
-    BuildCameraBuffer();
-
+    BuildBuffers();
     BuildShaders();
     BuildTextures();
 }
@@ -49,7 +47,7 @@ void Renderer::Draw(MTK::View *view) {
     MTL::CommandBuffer* cmd = _viewCommandQueue->commandBuffer();
 
 
-    GenerateMandelbrotTexture(cmd);
+    GenerateRaytraceTexture(cmd);
 
     MTL::RenderPassDescriptor* rpd = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder* enc = cmd->renderCommandEncoder(rpd);
@@ -88,36 +86,52 @@ void Renderer::BuildViewBuffers() {
     const size_t vertexDataSize = sizeof(vertices);
     const size_t indexDataSize = sizeof(indices);
 
-    MTL::Buffer* vertexBuffer = _device->newBuffer(vertexDataSize, MTL::ResourceStorageModeManaged);
-    MTL::Buffer* indexBuffer = _device->newBuffer(indexDataSize, MTL::ResourceStorageModeManaged);
-
-    _viewVertexDataBuffer = vertexBuffer;
-    _viewIndexBuffer = indexBuffer;
-
-    memcpy( _viewVertexDataBuffer->contents(), vertices, vertexDataSize );
-    memcpy( _viewIndexBuffer->contents(), indices, indexDataSize );
-
-    _viewVertexDataBuffer->didModifyRange(NS::Range::Make(0, _viewVertexDataBuffer->length()));
-    _viewIndexBuffer->didModifyRange(NS::Range::Make(0, _viewIndexBuffer->length()));
-
-    _textureAnimBuffer = _device->newBuffer(sizeof(uint), MTL::ResourceStorageModeManaged);
+    _viewVertexDataBuffer = ShaderTool::createBuffer(vertices, vertexDataSize, _device);
+    _viewIndexBuffer = ShaderTool::createBuffer(indices, indexDataSize, _device);
 }
 
 void Renderer::BuildCameraBuffer() {
     shader_types::CameraData cameraData{
-        MatrixTool::makeYRotate(1.0 / 2.0), MatrixTool::makeIdentity()
+        MatrixTool::makeYRotate(2.0 / 2.0), MatrixTool::makeIdentity()
     };
 
     const size_t cameraDataSize = sizeof(cameraData);
-    _cameraDataBuffer = _device->newBuffer(cameraDataSize, MTL::ResourceStorageModeManaged);
+    _cameraDataBuffer = ShaderTool::createBuffer(&cameraData, cameraDataSize, _device);
+}
 
-    memcpy(_cameraDataBuffer->contents(), &cameraData, cameraDataSize);
+void Renderer::BuildBuffers() {
 
-    _cameraDataBuffer->didModifyRange(NS::Range::Make(0, _cameraDataBuffer->length()));
+    // 1. view vertex data buffer
+    shader_types::VertexData vertices[] = {
+            {{-1, -1, 0}, {0, 0}},
+            {{+1, -1, 0}, {1, 0}},
+            {{-1, +1, 0}, {0, 1}},
+            {{+1, +1, 0}, {1, 1}}
+    };
+    const size_t vertexDataSize = sizeof(vertices);
+    _viewVertexDataBuffer = ShaderTool::createBuffer(vertices, vertexDataSize, _device);
+
+    // 2. view indices data buffer
+    uint16_t indices[] = {
+            0, 1, 2,
+            2, 1, 3
+    };
+    const size_t indexDataSize = sizeof(indices);
+    _viewIndexBuffer = ShaderTool::createBuffer(indices, indexDataSize, _device);
+
+    // 3. camera data buffer
+    shader_types::CameraData cameraData{
+            MatrixTool::makeYRotate(2.0 / 2.0), MatrixTool::makeIdentity()
+    };
+    const size_t cameraDataSize = sizeof(cameraData);
+    _cameraDataBuffer = ShaderTool::createBuffer(&cameraData, cameraDataSize, _device);
+
+    // 4. sample count buffer
+    _sampleCountBuffer = ShaderTool::createEmptyBuffer<uint>(_device);
 }
 
 void Renderer::BuildShaders() {
-    _viewPSO = ShaderTool::loadShader("../shaders/view.metal", _device);
+    _viewPSO    = ShaderTool::loadShader("../shaders/view.metal", _device);
     _computePSO = ShaderTool::loadComputeShader("../shaders/raytrace.metal", _device);
 }
 
@@ -126,24 +140,23 @@ void Renderer::BuildTextures() {
     _texture =  ShaderTool::createTexture(kTextureWidth, kTextureHeight, _device);
 
     // build skybox textures
-    _skyboxFront = ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
-    _skyboxBack = ShaderTool::loadTexture("../static/skybox/back.jpg", _device);
-    _skyboxLeft = ShaderTool::loadTexture("../static/skybox/left.jpg", _device);
-    _skyboxRight = ShaderTool::loadTexture("../static/skybox/right.jpg", _device);
-    _skyboxTop = ShaderTool::loadTexture("../static/skybox/top.jpg", _device);
+    _skyboxFront  = ShaderTool::loadTexture("../static/skybox/front.jpg", _device);
+    _skyboxBack   = ShaderTool::loadTexture("../static/skybox/back.jpg", _device);
+    _skyboxLeft   = ShaderTool::loadTexture("../static/skybox/left.jpg", _device);
+    _skyboxRight  = ShaderTool::loadTexture("../static/skybox/right.jpg", _device);
+    _skyboxTop    = ShaderTool::loadTexture("../static/skybox/top.jpg", _device);
     _skyboxBottom = ShaderTool::loadTexture("../static/skybox/bottom.jpg", _device);
 }
 
-void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
+void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
 
     assert(commandBuffer);
 
-    uint* ptr = reinterpret_cast<uint*>(_textureAnimBuffer->contents());
-    *ptr = (_animIdx++) % 5000;
-    _textureAnimBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
-
+    uint* ptr = reinterpret_cast<uint*>(_sampleCountBuffer->contents());
+    *ptr = _sampleCount++;
+    _sampleCountBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
+    
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
-
 
     computeCmdEnc->setComputePipelineState(_computePSO);
     computeCmdEnc->setTexture(_texture, 0);
@@ -153,9 +166,10 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
     computeCmdEnc->setTexture(_skyboxRight, 4);
     computeCmdEnc->setTexture(_skyboxTop, 5);
     computeCmdEnc->setTexture(_skyboxBottom, 6);
-    computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
+
 
     computeCmdEnc->setBuffer(_cameraDataBuffer, 0, 0);
+//    computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
 
     MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);
 
@@ -166,5 +180,6 @@ void Renderer::GenerateMandelbrotTexture(MTL::CommandBuffer *commandBuffer) {
 
     computeCmdEnc->endEncoding();
 }
+
 
 

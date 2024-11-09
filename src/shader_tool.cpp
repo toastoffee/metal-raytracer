@@ -168,7 +168,7 @@ MTL::Buffer *ShaderTool::createBuffer(void *src, size_t size, MTL::Device *devic
 }
 
 template<typename T>
-MTL::Buffer *ShaderTool::createBuffer(MTL::Device *device) {
+MTL::Buffer *ShaderTool::createEmptyBuffer(MTL::Device *device) {
     const size_t size = sizeof(T);
 
     MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeManaged);

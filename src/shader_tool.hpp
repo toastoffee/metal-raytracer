@@ -31,7 +31,8 @@ public:
     static MTL::Buffer* createBuffer(void* src, size_t size, MTL::Device* device);
 
     template<typename T>
-    static MTL::Buffer* createBuffer(MTL::Device* device);
+    static MTL::Buffer* createEmptyBuffer(MTL::Device* device);
+
 
 };
 
