@@ -4,9 +4,24 @@ using namespace metal;
 constant float deg2rad = M_PI_H / 180.0;
 
 // Generate a random float in the range [0.0f, 1.0f]
+// float rand(float seed) {
+//     // fake-pseudo algorithm
+//     return fract(sin(seed) * 43758.5453);
+// }
+
 float rand(float seed) {
-    // fake-pseudo algorithm
-    return fract(sin(seed) * 43758.5453);
+    
+    float2 p2 = {seed * 1.231, seed * 3.613};
+    
+    float3 p3 = {fract(p2.x * 0.1031), fract(p2.y * 0.1031), fract(p2.x * 0.1031)};
+    float3 p4 = {p3.y + 33.33, p3.z + 33.33, p3.x + 33.33};
+    float dotProduct = dot(p3, p4);
+
+    p3 += dotProduct;
+
+    return fract((p3.x + p3.y) * p3.z);
+
+    // return fract(sin(seed) * 43758.5453);
 }
 
 // Generate a random float in the range [min, max]

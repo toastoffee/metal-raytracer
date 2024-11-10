@@ -218,7 +218,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
 
-    float seed = rand(index.x * index.y + *sample_count);
+    float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)  ) * 0.1;
     float3 randDir = randUnitFloat3(seed);
 
     // tex.write(final_color, index, 0);
