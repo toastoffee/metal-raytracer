@@ -189,6 +189,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
     constexpr float aspectRatio = 16.0 / 9.0;
     constexpr float viewportDist = 1.0;
 
+    float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
 
     float viewportHeight = 2.0 * tan(fov * M_PI_H / 360.0) * viewportDist;
     float viewportWidth = viewportHeight * aspectRatio;
@@ -200,9 +201,13 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     float3 viewportLeftBtm = viewportForward - viewportUp / 2 - viewportRight / 2;
     
+    // float3 dir = viewportLeftBtm 
+    //             + ((index.x + 0.5) / 1920.0) * viewportRight
+    //             + ((index.y + 0.5) / 1080.0) * viewportUp;
     float3 dir = viewportLeftBtm 
-                + ((index.x + 0.5) / 1920.0) * viewportRight
-                + ((index.y + 0.5) / 1080.0) * viewportUp;
+                + ((index.x + randRange(seed)) / 1920.0) * viewportRight
+                + ((index.y + randRange(seed * 2)) / 1080.0) * viewportUp;
+    
 
     float4 dir4 = {dir.x, dir.y, dir.z, 1};
     dir4 = cameraData.rotationMatrix * dir4;
@@ -218,9 +223,6 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
 
-    float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)  ) * 0.1;
-    float3 randDir = randUnitFloat3(seed);
-
-    // tex.write(final_color, index, 0);
-    tex.write(half4(randDir.x, randDir.y, randDir.z, 1.0), index, 0);
+    tex.write(final_color, index, 0);
+    // tex.write(half4(randDir.x, randDir.y, randDir.z, 1.0), index, 0);
 }
