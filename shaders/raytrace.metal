@@ -1,6 +1,12 @@
 #include <metal_stdlib>
 using namespace metal;
 
+struct CameraData
+{
+    float4x4 rotationMatrix;
+    float4x4 translateMatrix;
+};
+
 half4 sample_skybox(float3 dir,
                     texture2d< half, access::sample > skybox_front,
                     texture2d< half, access::sample > skybox_back,
@@ -135,11 +141,32 @@ half4 sample_skybox(float3 dir,
     return half4(1.0, 0.0, 0.0, 1.0);
 }
 
-struct CameraData
+// Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
+float rand(int x, int y, int z)
 {
-    float4x4 rotationMatrix;
-    float4x4 translateMatrix;
-};
+    int seed = x + y * 57 + z * 241;
+    seed= (seed<< 13) ^ seed;
+    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
+}
+
+half3 rayColor( float3 dir, 
+                int depth,
+                texture2d< half, access::sample > skybox_front,
+                texture2d< half, access::sample > skybox_back,
+                texture2d< half, access::sample > skybox_left,
+                texture2d< half, access::sample > skybox_right,
+                texture2d< half, access::sample > skybox_top,
+                texture2d< half, access::sample > skybox_bottom)
+{
+    // if exceeded the ray bounce limit, then we assume that no more lights
+    if(depth <= 0) {
+        return half3{0.f, 0.f, 0.f};
+    }
+
+    // if hit object, then scatter and raycast again
+    
+
+}
 
 kernel void computeMain(texture2d< half, access::read_write > tex            [[texture(0)]],
                         texture2d< half, access::sample > skybox_front  [[texture(1)]],
@@ -183,6 +210,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     // multisample -> mix color
     half4 current_color = sample_skybox(dir, skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom);
+ 
     half4 former_color = tex.read(index);
 
     float mix_ratio = *sample_count / (*sample_count + 1.0);
