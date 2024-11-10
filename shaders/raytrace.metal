@@ -1,6 +1,8 @@
 #include <metal_stdlib>
 using namespace metal;
 
+#include "../shaders/random.metal"
+
 struct CameraData
 {
     float4x4 rotationMatrix;
@@ -165,8 +167,8 @@ half3 rayColor( float3 dir,
 
     // if hit object, then scatter and raycast again
     
-
 }
+
 
 kernel void computeMain(texture2d< half, access::read_write > tex            [[texture(0)]],
                         texture2d< half, access::sample > skybox_front  [[texture(1)]],
@@ -177,7 +179,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
                         texture2d< half, access::sample > skybox_bottom [[texture(6)]],
 
                         device const CameraData& cameraData     [[buffer(0)]],
-                        device const uint*       sample_count   [[buffer(1)]],
+                        device       uint*       sample_count   [[buffer(1)]],
 
                         uint2 index [[thread_position_in_grid]],
                         uint2 gridSize [[threads_per_grid]])
@@ -190,7 +192,6 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     float viewportHeight = 2.0 * tan(fov * M_PI_H / 360.0) * viewportDist;
     float viewportWidth = viewportHeight * aspectRatio;
-
 
     float3 viewportForward = {0, 0, viewportDist};
     float3 viewportUp      = {0, viewportHeight, 0};
@@ -217,6 +218,9 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
 
     half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
 
-    tex.write(final_color, index, 0);
-    // tex.write(half4(dir.x, dir.y, dir.z, 1.0), index, 0);
+    float seed = rand(index.x * index.y + *sample_count);
+    float3 randDir = randUnitFloat3(seed);
+
+    // tex.write(final_color, index, 0);
+    tex.write(half4(randDir.x, randDir.y, randDir.z, 1.0), index, 0);
 }

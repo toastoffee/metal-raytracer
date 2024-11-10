@@ -171,7 +171,7 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
 
 
     computeCmdEnc->setBuffer(_cameraDataBuffer, 0, 0);
-//    computeCmdEnc->setBuffer(_textureAnimBuffer, 0, 0);
+    computeCmdEnc->setBuffer(_sampleCountBuffer, 0, 1);
 
     MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);
 
