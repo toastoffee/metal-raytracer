@@ -3,6 +3,7 @@ using namespace metal;
 
 #include "../shaders/random.metal"
 #include "../shaders/skybox.metal"
+#include "../shaders/color.metal"
 
 
 struct CameraData
@@ -48,7 +49,9 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
 {
 
     constexpr float fov = 90.0;
-    constexpr float aspectRatio = 16.0 / 9.0;
+    // float aspectRatio = gridSize.x / gridSize.y;
+    float aspectRatio = gridSize.x / gridSize.y;
+
     constexpr float viewportDist = 1.0;
 
     float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
@@ -63,12 +66,9 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
 
     float3 viewportLeftBtm = viewportForward - viewportUp / 2 - viewportRight / 2;
     
-    // float3 dir = viewportLeftBtm 
-    //             + ((index.x + 0.5) / 1920.0) * viewportRight
-    //             + ((index.y + 0.5) / 1080.0) * viewportUp;
     float3 dir = viewportLeftBtm 
-                + ((index.x + rand(seed)) / 1920.0) * viewportRight
-                + ((index.y + rand(seed * 2)) / 1080.0) * viewportUp;
+                + ((index.x + rand(seed)) / gridSize.x) * viewportRight
+                + ((index.y + rand(seed * 2)) / gridSize.y) * viewportUp;
     
 
     float4 dir4 = {dir.x, dir.y, dir.z, 1};
@@ -83,7 +83,8 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
 
     float mix_ratio = *sample_count / (*sample_count + 1.0);
 
-    half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
+    // half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
+    half4 final_color = mixColor(former_color, current_color, mix_ratio, 1.0 - mix_ratio);
 
     tex.write(final_color, index, 0);
     // tex.write(half4(randDir.x, randDir.y, randDir.z, 1.0), index, 0);
