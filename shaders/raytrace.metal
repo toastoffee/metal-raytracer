@@ -5,6 +5,7 @@ using namespace metal;
 #include "../shaders/skybox.metal"
 #include "../shaders/color.metal"
 #include "../shaders/camera.metal"
+#include "../shaders/math.metal"
 
 
 
