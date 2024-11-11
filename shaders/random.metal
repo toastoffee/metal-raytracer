@@ -3,11 +3,6 @@ using namespace metal;
 
 constant float deg2rad = M_PI_H / 180.0;
 
-// Generate a random float in the range [0.0f, 1.0f]
-// float rand(float seed) {
-//     // fake-pseudo algorithm
-//     return fract(sin(seed) * 43758.5453);
-// }
 
 float rand(float seed) {
     

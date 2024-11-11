@@ -2,6 +2,8 @@
 using namespace metal;
 
 #include "../shaders/random.metal"
+#include "../shaders/skybox.metal"
+
 
 struct CameraData
 {
@@ -9,147 +11,7 @@ struct CameraData
     float4x4 translateMatrix;
 };
 
-half4 sample_skybox(float3 dir,
-                    texture2d< half, access::sample > skybox_front,
-                    texture2d< half, access::sample > skybox_back,
-                    texture2d< half, access::sample > skybox_left,
-                    texture2d< half, access::sample > skybox_right,
-                    texture2d< half, access::sample > skybox_top,
-                    texture2d< half, access::sample > skybox_bottom)
-{
 
-    constexpr sampler s( address::clamp_to_edge, filter::linear );
-
-    // forward
-    if(dir.z > 0.0) 
-    {
-        float t = 0.5 / dir.z;
-        float intersect_u = t * dir.x;
-        float intersect_v = t * dir.y;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = skybox_front.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    // back
-    if(dir.z <= 0.0) 
-    {
-        float t = -0.5 / dir.z;
-        float intersect_u = t * dir.x;
-        float intersect_v = t * dir.y;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(1.0 - u, 1.0 - v);
-            half3 texel = skybox_back.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    // right
-    if(dir.x > 0.0) 
-    {
-        float t = 0.5 / dir.x;
-        float intersect_u = t * dir.z;
-        float intersect_v = t * dir.y;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(1.0 - u, 1.0 - v);
-            half3 texel = skybox_right.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    // left
-    if(dir.x <= 0.0) 
-    {
-        float t = -0.5 / dir.x;
-        float intersect_u = t * dir.z;
-        float intersect_v = t * dir.y;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = skybox_left.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    // top
-    if(dir.y > 0.0) 
-    {
-        float t = 0.5 / dir.y;
-        float intersect_u = t * dir.x;
-        float intersect_v = t * dir.z;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(u, v);
-            half3 texel = skybox_top.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    // bottom
-    if(dir.y <= 0.0) 
-    {
-        float t = -0.5 / dir.y;
-        float intersect_u = t * dir.x;
-        float intersect_v = t * dir.z;
-
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
-
-            float2 texcoords = float2(u, 1.0-v);
-            half3 texel = skybox_bottom.sample( s, texcoords ).rgb;
-
-            return half4( texel, 1.0 );
-        }
-    }
-
-    return half4(1.0, 0.0, 0.0, 1.0);
-}
-
-// Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
-float rand(int x, int y, int z)
-{
-    int seed = x + y * 57 + z * 241;
-    seed= (seed<< 13) ^ seed;
-    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
-}
 
 half3 rayColor( float3 dir, 
                 int depth,
@@ -170,7 +32,7 @@ half3 rayColor( float3 dir,
 }
 
 
-kernel void computeMain(texture2d< half, access::read_write > tex            [[texture(0)]],
+kernel void computeMain(texture2d< half, access::read_write > tex       [[texture(0)]],
                         texture2d< half, access::sample > skybox_front  [[texture(1)]],
                         texture2d< half, access::sample > skybox_back   [[texture(2)]],
                         texture2d< half, access::sample > skybox_left   [[texture(3)]],
@@ -205,8 +67,8 @@ kernel void computeMain(texture2d< half, access::read_write > tex            [[t
     //             + ((index.x + 0.5) / 1920.0) * viewportRight
     //             + ((index.y + 0.5) / 1080.0) * viewportUp;
     float3 dir = viewportLeftBtm 
-                + ((index.x + randRange(seed)) / 1920.0) * viewportRight
-                + ((index.y + randRange(seed * 2)) / 1080.0) * viewportUp;
+                + ((index.x + rand(seed)) / 1920.0) * viewportRight
+                + ((index.y + rand(seed * 2)) / 1080.0) * viewportUp;
     
 
     float4 dir4 = {dir.x, dir.y, dir.z, 1};
