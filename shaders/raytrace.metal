@@ -43,14 +43,14 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
 {
 
     constexpr float fov = 90.0;
-
     float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
+    Cubemap cubemap = {skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom};
 
     Ray ray = getRandRay(index, fov, gridSize, cameraData, seed);
     float3 dir = ray.dir;
 
     // multisample -> mix color
-    half4 current_color = sample_skybox(dir, skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom);
+    half4 current_color = sample_skybox(dir, cubemap);
  
     half4 former_color = tex.read(index);
 

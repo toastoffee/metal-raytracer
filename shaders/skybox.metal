@@ -1,13 +1,18 @@
 #include <metal_stdlib>
 using namespace metal;
 
+struct Cubemap
+{
+    texture2d< half, access::sample > front;
+    texture2d< half, access::sample > back;
+    texture2d< half, access::sample > left;
+    texture2d< half, access::sample > right;
+    texture2d< half, access::sample > top;
+    texture2d< half, access::sample > bottom;
+};
+
 half4 sample_skybox(float3 dir,
-                    texture2d< half, access::sample > skybox_front,
-                    texture2d< half, access::sample > skybox_back,
-                    texture2d< half, access::sample > skybox_left,
-                    texture2d< half, access::sample > skybox_right,
-                    texture2d< half, access::sample > skybox_top,
-                    texture2d< half, access::sample > skybox_bottom)
+                    Cubemap cubemap)
 {
 
     constexpr sampler s( address::clamp_to_edge, filter::linear );
@@ -26,7 +31,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = skybox_front.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.front.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
@@ -46,7 +51,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(1.0 - u, 1.0 - v);
-            half3 texel = skybox_back.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.back.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
@@ -66,7 +71,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(1.0 - u, 1.0 - v);
-            half3 texel = skybox_right.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.right.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
@@ -86,7 +91,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = skybox_left.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.left.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
@@ -106,7 +111,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(u, v);
-            half3 texel = skybox_top.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.top.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }
@@ -126,7 +131,7 @@ half4 sample_skybox(float3 dir,
             float v = (intersect_v + 0.5) / 1.0;
 
             float2 texcoords = float2(u, 1.0-v);
-            half3 texel = skybox_bottom.sample( s, texcoords ).rgb;
+            half3 texel = cubemap.bottom.sample( s, texcoords ).rgb;
 
             return half4( texel, 1.0 );
         }

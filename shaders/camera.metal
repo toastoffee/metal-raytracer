@@ -2,6 +2,7 @@
 using namespace metal;
 
 #include "../shaders/random.metal"
+#include "../shaders/ray.metal"
 
 struct CameraData
 {
@@ -9,11 +10,6 @@ struct CameraData
     float4x4 translateMatrix;
 };
 
-struct Ray
-{
-    float3 origin;
-    float3 dir;
-};
 
 Ray getRay(uint2 index,
             float fov,
