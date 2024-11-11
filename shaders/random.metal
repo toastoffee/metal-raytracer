@@ -1,8 +1,10 @@
 #include <metal_stdlib>
 using namespace metal;
 
-constant float deg2rad = M_PI_H / 180.0;
+#ifndef METAL_RANDOM
+#define METAL_RANDOM
 
+constant float deg2rad = M_PI_H / 180.0;
 
 float rand(float seed) {
     
@@ -35,3 +37,5 @@ float3 randUnitFloat3(float seed) {
 
     return float3{x, y, z};
 }
+
+#endif // METAL_RANDOM

@@ -4,13 +4,7 @@ using namespace metal;
 #include "../shaders/random.metal"
 #include "../shaders/skybox.metal"
 #include "../shaders/color.metal"
-
-
-struct CameraData
-{
-    float4x4 rotationMatrix;
-    float4x4 translateMatrix;
-};
+#include "../shaders/camera.metal"
 
 
 
@@ -49,32 +43,11 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
 {
 
     constexpr float fov = 90.0;
-    // float aspectRatio = gridSize.x / gridSize.y;
-    float aspectRatio = gridSize.x / gridSize.y;
-
-    constexpr float viewportDist = 1.0;
 
     float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
 
-    float viewportHeight = 2.0 * tan(fov * M_PI_H / 360.0) * viewportDist;
-    float viewportWidth = viewportHeight * aspectRatio;
-
-    float3 viewportForward = {0, 0, viewportDist};
-    float3 viewportUp      = {0, viewportHeight, 0};
-    float3 viewportRight   = {viewportWidth, 0, 0};
-
-
-    float3 viewportLeftBtm = viewportForward - viewportUp / 2 - viewportRight / 2;
-    
-    float3 dir = viewportLeftBtm 
-                + ((index.x + rand(seed)) / gridSize.x) * viewportRight
-                + ((index.y + rand(seed * 2)) / gridSize.y) * viewportUp;
-    
-
-    float4 dir4 = {dir.x, dir.y, dir.z, 1};
-    dir4 = cameraData.rotationMatrix * dir4;
-    dir = {dir4.x, dir4.y, dir4.z};
-    dir = normalize(dir);
+    Ray ray = getRandRay(index, fov, gridSize, cameraData, seed);
+    float3 dir = ray.dir;
 
     // multisample -> mix color
     half4 current_color = sample_skybox(dir, skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom);
