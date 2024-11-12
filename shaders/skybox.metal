@@ -18,24 +18,24 @@ half4 sample_skybox(float3 dir,
     constexpr sampler s( address::clamp_to_edge, filter::linear );
 
     // forward
-    if(dir.z > 0.0) 
-    {
-        float t = 0.5 / dir.z;
-        float intersect_u = t * dir.x;
-        float intersect_v = t * dir.y;
+    // if(dir.z > 0.0) 
+    // {
+    //     float t = 0.5 / dir.z;
+    //     float intersect_u = t * dir.x;
+    //     float intersect_v = t * dir.y;
 
-        if(intersect_u >= -0.5 && intersect_u <= 0.5
-            && intersect_v >= -0.5 && intersect_v <= 0.5)
-        {
-            float u = (intersect_u + 0.5) / 1.0;
-            float v = (intersect_v + 0.5) / 1.0;
+    //     if(intersect_u >= -0.5 && intersect_u <= 0.5
+    //         && intersect_v >= -0.5 && intersect_v <= 0.5)
+    //     {
+    //         float u = (intersect_u + 0.5) / 1.0;
+    //         float v = (intersect_v + 0.5) / 1.0;
 
-            float2 texcoords = float2(u, 1.0 - v);
-            half3 texel = cubemap.front.sample( s, texcoords ).rgb;
+    //         float2 texcoords = float2(u, 1.0 - v);
+    //         half3 texel = cubemap.front.sample( s, texcoords ).rgb;
 
-            return half4( texel, 1.0 );
-        }
-    }
+    //         return half4( texel, 1.0 );
+    //     }
+    // }
 
     // back
     if(dir.z <= 0.0) 

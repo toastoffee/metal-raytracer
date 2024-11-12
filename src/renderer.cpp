@@ -121,7 +121,7 @@ void Renderer::BuildBuffers() {
 
     // 3. camera data buffer
     shader_types::CameraData cameraData{
-            MatrixTool::makeYRotate(2.0 / 2.0), MatrixTool::makeIdentity()
+            MatrixTool::makeYRotate(0), MatrixTool::makeIdentity()
     };
     const size_t cameraDataSize = sizeof(cameraData);
     _cameraDataBuffer = ShaderTool::createBuffer(&cameraData, cameraDataSize, _device);

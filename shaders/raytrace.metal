@@ -9,22 +9,29 @@ using namespace metal;
 
 
 
-half3 rayColor( float3 dir, 
-                int depth,
-                texture2d< half, access::sample > skybox_front,
-                texture2d< half, access::sample > skybox_back,
-                texture2d< half, access::sample > skybox_left,
-                texture2d< half, access::sample > skybox_right,
-                texture2d< half, access::sample > skybox_top,
-                texture2d< half, access::sample > skybox_bottom)
+half4 rayColor( Ray ray,
+                Cubemap cubemap, 
+                int depth)
 {
     // if exceeded the ray bounce limit, then we assume that no more lights
     if(depth <= 0) {
-        return half3{0.f, 0.f, 0.f};
+        return half4{0.f, 0.f, 0.f, 1.f};
     }
 
     // if hit object, then scatter and raycast again
     
+    float3 v0 = {-0.5, -0.5, 1};
+    float3 v1 = {-0.5, 0.5, 1};
+    float3 v2 = {0.5, 0.5, 1};
+
+    float tNear = 0.0f;
+    if(checkTriangleIntersect(v0, v1, v2, ray, &tNear))
+    {
+        return half4{1.0f, 1.0f, 1.0f, 1.0f};
+    }
+    
+
+    return sample_skybox(ray.dir, cubemap);
 }
 
 
@@ -51,7 +58,8 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     float3 dir = ray.dir;
 
     // multisample -> mix color
-    half4 current_color = sample_skybox(dir, cubemap);
+    half4 current_color = rayColor(ray, cubemap, 3);
+
  
     half4 former_color = tex.read(index);
 

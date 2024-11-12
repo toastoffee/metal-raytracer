@@ -11,7 +11,7 @@ float3 getPoint(Ray ray, float t)
     return ray.origin + t * ray.dir;
 }
 
-bool checkTriangleIntersect(float3 v0, float3 v1, float3 v2, Ray ray, device float *tNear)
+bool checkTriangleIntersect(float3 v0, float3 v1, float3 v2, Ray ray, thread float *tNear)
 {
     // triangle is counter-clockwise aligned
     float3 ab = v1 - v0;
