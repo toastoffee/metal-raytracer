@@ -27,9 +27,11 @@ half4 rayColor( Ray ray,
     float tNear = 0.0f;
     if(checkTriangleIntersect(v0, v1, v2, ray, &tNear))
     {
-        return half4{1.0f, 1.0f, 1.0f, 1.0f};
+        // return half4{1.0f, 1.0f, 1.0f, 1.0f};
+        float3 rnd = randUnitFloat3(ray.dir.x + ray.dir.y + ray.dir.z);
+        half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
+        return color;
     }
-    
 
     return sample_skybox(ray.dir, cubemap);
 }
