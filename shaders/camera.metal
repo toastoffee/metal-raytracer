@@ -54,7 +54,7 @@ Ray getRandRay(uint2 index,
             CameraData cameraData,
             float seed)
 {
-    float aspectRatio = resolution.x / resolution.y;
+    float aspectRatio = (float)resolution.x / resolution.y;
     
     // compute direction
     constexpr float viewportDist = 1.0;

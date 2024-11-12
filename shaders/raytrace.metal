@@ -58,7 +58,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     float3 dir = ray.dir;
 
     // multisample -> mix color
-    half4 current_color = rayColor(ray, cubemap, 3);
+    half4 current_color = rayColor(ray, cubemap, 8);
 
  
     half4 former_color = tex.read(index);
