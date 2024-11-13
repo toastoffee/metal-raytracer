@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
         src/shader_types.hpp
         src/matrix_tool.cpp
         src/matrix_tool.hpp
+        src/mesh_tool.cpp
+        src/mesh_tool.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} METAL_CPP)

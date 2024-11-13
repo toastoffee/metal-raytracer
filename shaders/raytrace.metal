@@ -7,7 +7,13 @@ using namespace metal;
 #include "../shaders/camera.metal"
 #include "../shaders/math.metal"
 
-
+struct HitPayload 
+{
+    float3 p;
+    float t;
+    float3 normal;
+    bool hitFront;    
+};
 
 half4 rayColor( Ray ray,
                 Cubemap cubemap, 
@@ -28,8 +34,12 @@ half4 rayColor( Ray ray,
     if(checkTriangleIntersect(v0, v1, v2, ray, &tNear))
     {
         // return half4{1.0f, 1.0f, 1.0f, 1.0f};
-        float3 rnd = randUnitFloat3(ray.dir.x + ray.dir.y + ray.dir.z);
+        // float3 rnd = randUnitFloat3(ray.dir.x + ray.dir.y + ray.dir.z);
+        // half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
+
+        float3 rnd = getPoint(ray, tNear);
         half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
+
         return color;
     }
 
