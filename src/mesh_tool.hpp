@@ -13,12 +13,29 @@
 #ifndef METAL_RENDERER_MESH_TOOL_HPP
 #define METAL_RENDERER_MESH_TOOL_HPP
 
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+
+#include <simd/simd.h>
+
+#include <vector>
+
+struct Mesh {
+public:
+    std::vector<simd::float3> vertices;
+    std::vector<simd::uint3> indices;
+};
 
 class MeshTool {
-//private:
-//    // process node recursively
-//    static void processNode()
-//public:
+private:
+    // process node recursively
+    static void processNode(aiNode *node, const aiScene *scene, const simd::float3 pos);
+
+    // transfer aiMesh to mesh
+    static Mesh convertMesh(aiMesh *mesh, const aiScene *scene);
+
+public:
 
 };
 
