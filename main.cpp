@@ -5,6 +5,8 @@
 #define CA_PRIVATE_IMPLEMENTATION
 
 #include <iostream>
+#include <simd/simd.h>
+
 
 #include "app_delegate.hpp"
 
@@ -20,6 +22,7 @@ int main( int argc, char* argv[] )
     sharedApplication->run();
 
     autoreleasePool->release();
+
 
     return 0;
 }

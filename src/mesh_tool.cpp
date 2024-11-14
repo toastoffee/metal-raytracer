@@ -47,6 +47,3 @@ Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
     return ret;
 }
 
-void Mesh::mergeMesh(Mesh &mesh) {
-
-}
