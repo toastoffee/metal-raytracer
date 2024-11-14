@@ -15,9 +15,10 @@
 
 
 class MeshTool {
-private:
-    
-public:
+//private:
+//    // process node recursively
+//    static void processNode()
+//public:
 
 };
 

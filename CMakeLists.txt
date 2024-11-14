@@ -7,6 +7,9 @@ add_subdirectory(metal-cmake)
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/third_party)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/assimp/include)
+
+link_directories(third_party/assimp/lib)
 
 add_executable(${PROJECT_NAME}
         main.cpp
@@ -29,4 +32,4 @@ add_executable(${PROJECT_NAME}
         src/mesh_tool.hpp
 )
 
-target_link_libraries(${PROJECT_NAME} METAL_CPP)
+target_link_libraries(${PROJECT_NAME} METAL_CPP assimp)
