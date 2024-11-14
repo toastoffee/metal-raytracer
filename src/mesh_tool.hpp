@@ -24,7 +24,7 @@
 class MeshTool {
 private:
     // process node recursively
-    static void processNode(aiNode *node, const aiScene *scene, const simd::float3 pos);
+    static Mesh processNode(aiNode *node, const aiScene *scene);
 
     // transfer aiMesh to mesh
     static Mesh convertMesh(aiMesh *mesh, const aiScene *scene);

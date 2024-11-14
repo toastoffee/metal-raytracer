@@ -12,14 +12,19 @@
 
 #include "mesh_tool.hpp"
 
-void MeshTool::processNode(aiNode *node, const aiScene *scene, const simd::float3 pos) {
+Mesh MeshTool::processNode(aiNode *node, const aiScene *scene) {
+
+    Mesh ret;
 
     // process all meshes and load triangles
     for (int i = 0; i < node->mNumMeshes; ++i) {
         aiMesh* aMesh = scene->mMeshes[node->mMeshes[i]];
         auto mesh = convertMesh(aMesh, scene);
 
+        ret.mergeMesh(mesh);
     }
+
+    return ret;
 }
 
 Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
