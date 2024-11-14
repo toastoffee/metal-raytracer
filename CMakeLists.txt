@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME}
         src/matrix_tool.hpp
         src/mesh_tool.cpp
         src/mesh_tool.hpp
+        src/mesh.cpp
+        src/mesh.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} METAL_CPP assimp)

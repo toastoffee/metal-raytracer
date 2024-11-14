@@ -15,7 +15,11 @@
 void MeshTool::processNode(aiNode *node, const aiScene *scene, const simd::float3 pos) {
 
     // process all meshes and load triangles
+    for (int i = 0; i < node->mNumMeshes; ++i) {
+        aiMesh* aMesh = scene->mMeshes[node->mMeshes[i]];
+        auto mesh = convertMesh(aMesh, scene);
 
+    }
 }
 
 Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
@@ -43,3 +47,6 @@ Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
     return ret;
 }
 
+void Mesh::mergeMesh(Mesh &mesh) {
+
+}

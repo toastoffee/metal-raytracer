@@ -19,13 +19,7 @@
 
 #include <simd/simd.h>
 
-#include <vector>
-
-struct Mesh {
-public:
-    std::vector<simd::float3> vertices;
-    std::vector<simd::uint3> indices;
-};
+#include <mesh.hpp>
 
 class MeshTool {
 private:
