@@ -24,7 +24,6 @@ int main( int argc, char* argv[] )
 
     autoreleasePool->release();
 
-    auto mesh = MeshTool::loadMesh("../static/bunny.obj");
 
     return 0;
 }

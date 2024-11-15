@@ -17,6 +17,7 @@
 #include "shader_tool.hpp"
 #include "matrix_tool.hpp"
 #include "shader_types.hpp"
+#include "mesh_tool.hpp"
 
 
 static constexpr uint32_t kTextureWidth = 1920;
@@ -128,6 +129,14 @@ void Renderer::BuildBuffers() {
 
     // 4. sample count buffer
     _sampleCountBuffer = ShaderTool::createEmptyBuffer(sizeof(uint), _device);
+
+    // 5. mesh vertices/indices/indices count buffers
+    auto mesh = MeshTool::loadMesh("../static/bunny.obj");
+
+    const size_t meshVerticesSize = mesh.vertices.size() * sizeof(simd::float3);
+    _meshVerticesBuffer = ShaderTool::createBuffer(mesh.vertices.data(), meshVerticesSize, _device);
+
+
 }
 
 void Renderer::BuildShaders() {

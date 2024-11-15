@@ -27,3 +27,12 @@ void Mesh::mergeMesh(Mesh &mesh) {
     }
 }
 
+void Mesh::setPos(simd::float3 pos) {
+    auto offset = pos - _pos;
+    _pos = pos;
+
+    for (int i = 0; i < vertices.size(); ++i) {
+        vertices[i] += offset;
+    }
+}
+

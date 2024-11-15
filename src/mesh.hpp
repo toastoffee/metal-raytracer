@@ -17,11 +17,16 @@
 #include <simd/simd.h>
 
 class Mesh {
+private:
+    simd::float3 _pos = {0., 0., 0.};
+
 public:
     std::vector<simd::float3> vertices;
     std::vector<simd::uint3> indices;
 
     void mergeMesh(Mesh &mesh);
+
+    void setPos(simd::float3 pos);
 };
 
 

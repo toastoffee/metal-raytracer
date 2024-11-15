@@ -37,6 +37,10 @@ private:
     MTL::Buffer* _cameraDataBuffer;
     MTL::Buffer* _sampleCountBuffer;
 
+    MTL::Buffer* _meshVerticesBuffer;
+    MTL::Buffer* _meshIndicesBuffer;
+    MTL::Buffer* _meshIndicesCount;
+
     uint _sampleCount;
 
 public:
