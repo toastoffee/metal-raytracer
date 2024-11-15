@@ -7,8 +7,9 @@
 #include <iostream>
 #include <simd/simd.h>
 
-
 #include "app_delegate.hpp"
+
+#include "mesh_tool.hpp"
 
 int main( int argc, char* argv[] )
 {
@@ -23,6 +24,7 @@ int main( int argc, char* argv[] )
 
     autoreleasePool->release();
 
+    auto mesh = MeshTool::loadMesh("../static/bunny.obj");
 
     return 0;
 }

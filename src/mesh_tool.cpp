@@ -24,6 +24,12 @@ Mesh MeshTool::processNode(aiNode *node, const aiScene *scene) {
         ret.mergeMesh(mesh);
     }
 
+    // repeat this process for all children nodes
+    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+        auto childMesh = processNode(node->mChildren[i], scene);
+        ret.mergeMesh(childMesh);
+    }
+
     return ret;
 }
 
@@ -58,7 +64,6 @@ Mesh MeshTool::loadMesh(const std::string &path) {
     Assimp::Importer importer;
     const aiScene* aScene = importer.ReadFile(path, aiProcess_Triangulate);
 
-    // check error
     // check error
     if(!aScene || aScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aScene->mRootNode){
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
