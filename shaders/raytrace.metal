@@ -33,12 +33,13 @@ half4 rayColor( Ray ray,
     }
 
     // if hit object, then scatter and raycast again
-    
-    float3 v0 = {-0.5, -0.5, 1};
-    float3 v1 = {-0.5, 0.5, 1};
-    float3 v2 = {0.5, 0.5, 1};
 
-    float tNear = 0.0f;
+    float tNear = 10000000.f;
+    float t = 0.0f;
+
+    float3 v0, v1, v2, p, normal;
+
+    bool hit_anything = false;
 
     for(uint i = 0; i < *mesh.face_count; i++) 
     {
@@ -47,9 +48,26 @@ half4 rayColor( Ray ray,
         float3 v1 = mesh.vertices[index.y];        
         float3 v2 = mesh.vertices[index.z];
 
-        if(checkTriangleIntersect(v0, v1, v2, ray, &tNear)) {
-            float3 rnd = getPoint(ray, tNear);
-            half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
+        if(checkTriangleIntersect(v0, v1, v2, ray, &t)) {
+            if(t >= 0.01f) {
+                hit_anything = true;
+
+                // update relected rays
+                if(t < tNear) {
+                    tNear = t;
+                    p = getPoint(ray, tNear);
+                    float3 outward_normal = normalize(cross(v1 - v0, v2 - v0));
+                    // set correct normal direction
+                    bool hit_front = dot(ray.dir, outward_normal) < 0.0;
+                    normal = hit_front ? outward_normal : -outward_normal;
+                }
+            }
+        }
+
+        if(hit_anything) {
+            // scatter
+            float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
+            half4 color = {(half)scattered.x, (half)scattered.y, (half)scattered.z, 1.0f};
 
             return color;
         }
