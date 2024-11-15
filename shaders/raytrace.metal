@@ -15,8 +15,16 @@ struct HitPayload
     bool hitFront;    
 };
 
+struct Mesh
+{
+    device const float3* vertices;
+    device const uint3*  indices;
+    device const uint*   face_count;
+};
+
 half4 rayColor( Ray ray,
                 Cubemap cubemap, 
+                Mesh mesh,
                 int depth)
 {
     // if exceeded the ray bounce limit, then we assume that no more lights
@@ -31,6 +39,24 @@ half4 rayColor( Ray ray,
     float3 v2 = {0.5, 0.5, 1};
 
     float tNear = 0.0f;
+
+    for(uint i = 0; i < *mesh.face_count; i++) 
+    {
+        uint3 index = mesh.indices[i];
+        float3 v0 = mesh.vertices[index.x];
+        float3 v1 = mesh.vertices[index.y];        
+        float3 v2 = mesh.vertices[index.z];
+
+        if(checkTriangleIntersect(v0, v1, v2, ray, &tNear)) {
+            float3 rnd = getPoint(ray, tNear);
+            half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
+
+            return color;
+        }
+    }
+
+    return sample_skybox(ray.dir, cubemap);
+
     if(checkTriangleIntersect(v0, v1, v2, ray, &tNear))
     {
         // return half4{1.0f, 1.0f, 1.0f, 1.0f};
@@ -55,12 +81,19 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
                         texture2d< half, access::sample > skybox_top    [[texture(5)]],
                         texture2d< half, access::sample > skybox_bottom [[texture(6)]],
 
-                        device const CameraData& cameraData     [[buffer(0)]],
-                        device       uint*       sample_count   [[buffer(1)]],
+                        device const CameraData& cameraData         [[buffer(0)]],
+                        device       uint*       sample_count       [[buffer(1)]],
+                        device const float3*     mesh_vertices      [[buffer(2)]],
+                        device const uint3*      mesh_indices       [[buffer(3)]],
+                        device       uint*       mesh_indices_count [[buffer(4)]],
 
                         uint2 index [[thread_position_in_grid]],
                         uint2 gridSize [[threads_per_grid]])
 {
+
+    if(*sample_count > 10){
+        return;
+    }
 
     constexpr float fov = 90.0;
     float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
@@ -69,9 +102,10 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     Ray ray = getRandRay(index, fov, gridSize, cameraData, seed);
     float3 dir = ray.dir;
 
-    // multisample -> mix color
-    half4 current_color = rayColor(ray, cubemap, 8);
+    Mesh mesh = {mesh_vertices, mesh_indices, mesh_indices_count};
 
+    // multisample -> mix color
+    half4 current_color = rayColor(ray, cubemap, mesh, 8);
  
     half4 former_color = tex.read(index);
 

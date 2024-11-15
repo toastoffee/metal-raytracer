@@ -132,11 +132,18 @@ void Renderer::BuildBuffers() {
 
     // 5. mesh vertices/indices/indices count buffers
     auto mesh = MeshTool::loadMesh("../static/bunny.obj");
+    mesh.setPos({0.03, -0.1, 0.5});
 
     const size_t meshVerticesSize = mesh.vertices.size() * sizeof(simd::float3);
     _meshVerticesBuffer = ShaderTool::createBuffer(mesh.vertices.data(), meshVerticesSize, _device);
 
+    const size_t meshIndicesSize = mesh.indices.size() * sizeof(simd::uint3);
+    _meshIndicesBuffer = ShaderTool::createBuffer(mesh.indices.data(), meshIndicesSize, _device);
 
+    _meshIndicesCountBuffer = ShaderTool::createEmptyBuffer(sizeof(uint), _device);
+    uint* ptr = reinterpret_cast<uint*>(_meshIndicesCountBuffer->contents());
+    *ptr = mesh.indices.size();
+    _meshIndicesCountBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
 }
 
 void Renderer::BuildShaders() {
@@ -181,6 +188,9 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
 
     computeCmdEnc->setBuffer(_cameraDataBuffer, 0, 0);
     computeCmdEnc->setBuffer(_sampleCountBuffer, 0, 1);
+    computeCmdEnc->setBuffer(_meshVerticesBuffer, 0, 2);
+    computeCmdEnc->setBuffer(_meshIndicesBuffer, 0, 3);
+    computeCmdEnc->setBuffer(_meshIndicesCountBuffer, 0, 4);
 
     MTL::Size gridSize = MTL::Size(kTextureWidth, kTextureHeight, 1);
 

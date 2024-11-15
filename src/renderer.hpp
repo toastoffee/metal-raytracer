@@ -39,7 +39,7 @@ private:
 
     MTL::Buffer* _meshVerticesBuffer;
     MTL::Buffer* _meshIndicesBuffer;
-    MTL::Buffer* _meshIndicesCount;
+    MTL::Buffer* _meshIndicesCountBuffer;
 
     uint _sampleCount;
 
