@@ -8,7 +8,7 @@
   ******************************************************************************
   */
 
-
+#include <iostream>
 
 #include "mesh_tool.hpp"
 
@@ -19,7 +19,7 @@ Mesh MeshTool::processNode(aiNode *node, const aiScene *scene) {
     // process all meshes and load triangles
     for (int i = 0; i < node->mNumMeshes; ++i) {
         aiMesh* aMesh = scene->mMeshes[node->mMeshes[i]];
-        auto mesh = convertMesh(aMesh, scene);
+        auto mesh = convertMesh(aMesh);
 
         ret.mergeMesh(mesh);
     }
@@ -27,7 +27,7 @@ Mesh MeshTool::processNode(aiNode *node, const aiScene *scene) {
     return ret;
 }
 
-Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
+Mesh MeshTool::convertMesh(aiMesh *mesh) {
     using simd::float3;
     using simd::uint3;
 
@@ -50,5 +50,21 @@ Mesh MeshTool::convertMesh(aiMesh *mesh, const aiScene *scene) {
     }
 
     return ret;
+}
+
+Mesh MeshTool::loadMesh(const std::string &path) {
+
+    // assimp read file
+    Assimp::Importer importer;
+    const aiScene* aScene = importer.ReadFile(path, aiProcess_Triangulate);
+
+    // check error
+    // check error
+    if(!aScene || aScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aScene->mRootNode){
+        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+        assert(false);
+    }
+
+    return processNode(aScene->mRootNode, aScene);
 }
 

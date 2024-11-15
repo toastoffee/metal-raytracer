@@ -27,10 +27,11 @@ private:
     static Mesh processNode(aiNode *node, const aiScene *scene);
 
     // transfer aiMesh to mesh
-    static Mesh convertMesh(aiMesh *mesh, const aiScene *scene);
+    static Mesh convertMesh(aiMesh *mesh);
 
 public:
 
+    static Mesh loadMesh(const std::string &path);
 };
 
 
