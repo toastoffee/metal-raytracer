@@ -25,7 +25,8 @@ struct Mesh
 half4 rayColor( Ray ray,
                 Cubemap cubemap, 
                 Mesh mesh,
-                int depth)
+                int depth,
+                float seed)
 {
     // if exceeded the ray bounce limit, then we assume that no more lights
     if(depth <= 0) {
@@ -77,6 +78,9 @@ half4 rayColor( Ray ray,
         if(hit_anything) {
             // scatter
             float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
+            
+            float3 fuzz_sphere = 0.1 * randUnitFloat3(seed);
+            scattered = normalize(scattered + fuzz_sphere);
 
             // modify rays
             ray.origin = p;
@@ -131,7 +135,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     Mesh mesh = {mesh_vertices, mesh_indices, mesh_indices_count};
 
     // multisample -> mix color
-    half4 current_color = rayColor(ray, cubemap, mesh, 10);
+    half4 current_color = rayColor(ray, cubemap, mesh, 10, seed);
  
     half4 former_color = tex.read(index);
 
