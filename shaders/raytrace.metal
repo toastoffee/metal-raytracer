@@ -41,6 +41,8 @@ half4 rayColor( Ray ray,
 
     bool hit_anything = false;
 
+    half4 attenuation = {0.5, 0.5, 0.5, 1.0};
+
     for(uint i = 0; i < *mesh.face_count; i++) 
     {
         uint3 index = mesh.indices[i];
@@ -63,31 +65,18 @@ half4 rayColor( Ray ray,
                 }
             }
         }
+    }
 
-        if(hit_anything) {
-            // scatter
-            float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
-            half4 color = {(half)scattered.x, (half)scattered.y, (half)scattered.z, 1.0f};
+    if(hit_anything) {
+        // scatter
+        float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
+        Ray sactter_ray = {p, scattered};
 
-            return color;
-        }
+        return attenuation * rayColor(sactter_ray, cubemap, mesh, depth-1);
     }
 
     return sample_skybox(ray.dir, cubemap);
 
-    if(checkTriangleIntersect(v0, v1, v2, ray, &tNear))
-    {
-        // return half4{1.0f, 1.0f, 1.0f, 1.0f};
-        // float3 rnd = randUnitFloat3(ray.dir.x + ray.dir.y + ray.dir.z);
-        // half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
-
-        float3 rnd = getPoint(ray, tNear);
-        half4 color = {(half)rnd.x, (half)rnd.y, (half)rnd.z, 1.0f};
-
-        return color;
-    }
-
-    return sample_skybox(ray.dir, cubemap);
 }
 
 
@@ -123,7 +112,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     Mesh mesh = {mesh_vertices, mesh_indices, mesh_indices_count};
 
     // multisample -> mix color
-    half4 current_color = rayColor(ray, cubemap, mesh, 8);
+    half4 current_color = rayColor(ray, cubemap, mesh, 3);
  
     half4 former_color = tex.read(index);
 
