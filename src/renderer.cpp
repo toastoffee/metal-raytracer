@@ -19,6 +19,9 @@
 #include "shader_types.hpp"
 #include "mesh_tool.hpp"
 
+#include <thread>
+#include <chrono>
+
 
 static constexpr uint32_t kTextureWidth = 1920;
 static constexpr uint32_t kTextureHeight = 1080;
@@ -45,10 +48,17 @@ Renderer::~Renderer() {
 }
 
 void Renderer::Draw(MTK::View *view) {
+
     NS::AutoreleasePool* pool = NS::AutoreleasePool::alloc()->init();
+
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
 
     MTL::CommandBuffer* cmd = _viewCommandQueue->commandBuffer();
 
+    Renderer *renderer = this;
+    cmd->addCompletedHandler( ^void( MTL::CommandBuffer* pCmd ){
+        dispatch_semaphore_signal( renderer ->_semaphore );
+    });
 
     GenerateRaytraceTexture(cmd);
 
@@ -170,8 +180,6 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
 
     assert(commandBuffer);
 
-    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-
     uint* ptr = reinterpret_cast<uint*>(_sampleCountBuffer->contents());
     *ptr = _sampleCount++;
     _sampleCountBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
@@ -179,11 +187,6 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
     std::cout << *ptr << std::endl;
 
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
-
-    Renderer *renderer = this;
-    commandBuffer->addCompletedHandler( ^void( MTL::CommandBuffer* pCmd ){
-        dispatch_semaphore_signal( renderer ->_semaphore );
-    });
 
     computeCmdEnc->setComputePipelineState(_computePSO);
     computeCmdEnc->setTexture(_texture, 0);

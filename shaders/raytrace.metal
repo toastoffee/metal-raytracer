@@ -112,13 +112,17 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
                         uint2 index [[thread_position_in_grid]],
                         uint2 gridSize [[threads_per_grid]])
 {
+    uint sample_interval = 1;
+    uint quotient = *sample_count / sample_interval;
+    uint remainder = *sample_count % sample_interval;
+    uint align_index = index.x + index.y * gridSize.x;
 
-    if(*sample_count > 60){
+    if(align_index % sample_interval != remainder) {
         return;
     }
 
     constexpr float fov = 90.0;
-    float seed = (index.x + index.y * gridSize.x + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
+    float seed = (align_index + sin((float)*sample_count) * (gridSize.x * gridSize.y)) * 0.1;
     Cubemap cubemap = {skybox_front, skybox_back, skybox_left, skybox_right, skybox_top, skybox_bottom};
 
     Ray ray = getRandRay(index, fov, gridSize, cameraData, seed);
@@ -131,7 +135,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
  
     half4 former_color = tex.read(index);
 
-    float mix_ratio = *sample_count / (*sample_count + 1.0);
+    float mix_ratio = quotient / (quotient + 1.0);
 
     // half4 final_color = mix_ratio * former_color + (1.0 - mix_ratio) * current_color;
     half4 final_color = mixColor(former_color, current_color, mix_ratio, 1.0 - mix_ratio);
