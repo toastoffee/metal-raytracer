@@ -132,7 +132,7 @@ void Renderer::BuildBuffers() {
 
     // 5. mesh vertices/indices/indices count buffers
     auto mesh = MeshTool::loadMesh("../static/bunny.obj");
-    mesh.setPos({0.03, -0.1, 0.3});
+    mesh.setPos({0.03, -0.1, 0.2});
 
     const size_t meshVerticesSize = mesh.vertices.size() * sizeof(simd::float3);
     _meshVerticesBuffer = ShaderTool::createBuffer(mesh.vertices.data(), meshVerticesSize, _device);

@@ -29,7 +29,7 @@ half4 rayColor( Ray ray,
 {
     // if exceeded the ray bounce limit, then we assume that no more lights
     if(depth <= 0) {
-        return half4{0.f, 0.f, 0.f, 1.f};
+        return half4{1.f, 0.f, 0.f, 1.f};
     }
 
     // if hit object, then scatter and raycast again
@@ -43,39 +43,54 @@ half4 rayColor( Ray ray,
 
     half4 attenuation = {0.5, 0.5, 0.5, 1.0};
 
-    for(uint i = 0; i < *mesh.face_count; i++) 
+    half4 final_color = {1.0, 1.0, 1.0, 1.0};
+
+    for(uint sample = 0; sample < depth; sample++)
     {
-        uint3 index = mesh.indices[i];
-        float3 v0 = mesh.vertices[index.x];
-        float3 v1 = mesh.vertices[index.y];        
-        float3 v2 = mesh.vertices[index.z];
+        hit_anything = false;
 
-        if(checkTriangleIntersect(v0, v1, v2, ray, &t)) {
-            if(t >= 0.01f) {
-                hit_anything = true;
+        // check if hit
+        for(uint i = 0; i < *mesh.face_count; i++) 
+        {
+            uint3 index = mesh.indices[i];
+            float3 v0 = mesh.vertices[index.x];
+            float3 v1 = mesh.vertices[index.y];        
+            float3 v2 = mesh.vertices[index.z];
 
-                // update relected rays
-                if(t < tNear) {
-                    tNear = t;
-                    p = getPoint(ray, tNear);
-                    float3 outward_normal = normalize(cross(v1 - v0, v2 - v0));
-                    // set correct normal direction
-                    bool hit_front = dot(ray.dir, outward_normal) < 0.0;
-                    normal = hit_front ? outward_normal : -outward_normal;
+            if(checkTriangleIntersect(v0, v1, v2, ray, &t)) {
+                if(t >= 0.01f) {
+                    hit_anything = true;
+
+                    // update relected rays
+                    if(t < tNear) {
+                        tNear = t;
+                        p = getPoint(ray, tNear);
+                        float3 outward_normal = normalize(cross(v1 - v0, v2 - v0));
+                        // set correct normal direction
+                        bool hit_front = dot(ray.dir, outward_normal) < 0.0;
+                        normal = hit_front ? outward_normal : -outward_normal;
+                    }
                 }
             }
         }
+
+        if(hit_anything) {
+            // scatter
+            float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
+
+            // modify rays
+            ray.origin = p;
+            ray.dir = scattered;
+
+            final_color *= attenuation;
+        }
+        else {
+            final_color *= sample_skybox(ray.dir, cubemap);
+            break;
+        }
     }
 
-    if(hit_anything) {
-        // scatter
-        float3 scattered = normalize(ray.dir - 2.0f * dot(ray.dir, normal) * normal);  
-        Ray sactter_ray = {p, scattered};
-
-        return attenuation * rayColor(sactter_ray, cubemap, mesh, depth-1);
-    }
-
-    return sample_skybox(ray.dir, cubemap);
+    return final_color;
 
 }
 
@@ -98,7 +113,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
                         uint2 gridSize [[threads_per_grid]])
 {
 
-    if(*sample_count > 10){
+    if(*sample_count > 60){
         return;
     }
 
@@ -112,7 +127,7 @@ kernel void computeMain(texture2d< half, access::read_write > tex       [[textur
     Mesh mesh = {mesh_vertices, mesh_indices, mesh_indices_count};
 
     // multisample -> mix color
-    half4 current_color = rayColor(ray, cubemap, mesh, 3);
+    half4 current_color = rayColor(ray, cubemap, mesh, 10);
  
     half4 former_color = tex.read(index);
 
