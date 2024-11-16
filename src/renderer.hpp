@@ -41,6 +41,8 @@ private:
     MTL::Buffer* _meshIndicesBuffer;
     MTL::Buffer* _meshIndicesCountBuffer;
 
+    dispatch_semaphore_t _semaphore;
+
     uint _sampleCount;
 
 public:

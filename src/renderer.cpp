@@ -32,6 +32,8 @@ Renderer::Renderer(MTL::Device *device)
     BuildBuffers();
     BuildShaders();
     BuildTextures();
+
+    _semaphore = dispatch_semaphore_create( 1 );
 }
 
 Renderer::~Renderer() {
@@ -168,6 +170,8 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
 
     assert(commandBuffer);
 
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+
     uint* ptr = reinterpret_cast<uint*>(_sampleCountBuffer->contents());
     *ptr = _sampleCount++;
     _sampleCountBuffer->didModifyRange(NS::Range::Make(0, sizeof(uint)));
@@ -175,6 +179,11 @@ void Renderer::GenerateRaytraceTexture(MTL::CommandBuffer *commandBuffer) {
     std::cout << *ptr << std::endl;
 
     MTL::ComputeCommandEncoder* computeCmdEnc = commandBuffer->computeCommandEncoder();
+
+    Renderer *renderer = this;
+    commandBuffer->addCompletedHandler( ^void( MTL::CommandBuffer* pCmd ){
+        dispatch_semaphore_signal( renderer ->_semaphore );
+    });
 
     computeCmdEnc->setComputePipelineState(_computePSO);
     computeCmdEnc->setTexture(_texture, 0);
